@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\InnerRoomSpawn.cs" />
+    <Compile Include="Assets\MapGenerationScripts\MapGeneration.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
