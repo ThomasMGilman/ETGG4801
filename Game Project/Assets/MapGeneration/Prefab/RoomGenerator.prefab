@@ -57,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8daa544ebc117c249bef96b995a6e62b, type: 2}
+  - {fileID: 2100000, guid: 683222a24c7179a41b8b7ad110bf40fd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -126,8 +126,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileAmount: 0
   wallHeight: 5
-  walls: {fileID: 8367393366752454914}
-  cave: {fileID: 8367393367212254384}
+  Wall_MeshFilter: {fileID: 8367393366752454914}
+  Room_MeshFilter: {fileID: 8367393367212254384}
   is2D: 0
 --- !u!114 &-2933081695075089465
 MonoBehaviour:
@@ -142,21 +142,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Room_prefab: {fileID: 0}
-  WorldWidth: 25
-  WorldHeight: 25
-  RoomWidth: 100
-  RoomHeight: 100
+  WorldWidth: 5
+  WorldHeight: 5
+  RoomWidth: 250
+  RoomHeight: 250
   HalfWidth: 0
   HalfHeight: 0
-  HallWidth: 1
+  HallWidth: 5
   SquareSize: 1
-  BorderSize: 1
+  BorderSize: 2
   SmoothTimes: 5
   WallThresholdSize: 50
   RoomThresholdSize: 50
   Seed: Random
   UseRandSeed: 1
-  RandFillPercent: 47
+  RandFillPercent: 40
 --- !u!1 &8367393367212254387
 GameObject:
   m_ObjectHideFlags: 0
