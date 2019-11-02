@@ -362,6 +362,21 @@ PrefabInstance:
       propertyPath: WorldHeight
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3335562426315804254, guid: b8ad4fc7c5549404490d5e518333b6b1,
+        type: 3}
+      propertyPath: RoomWidth
+      value: 225
+      objectReference: {fileID: 0}
+    - target: {fileID: 3335562426315804254, guid: b8ad4fc7c5549404490d5e518333b6b1,
+        type: 3}
+      propertyPath: RoomHeight
+      value: 225
+      objectReference: {fileID: 0}
+    - target: {fileID: 3335562426315804254, guid: b8ad4fc7c5549404490d5e518333b6b1,
+        type: 3}
+      propertyPath: mapSettingsName
+      value: worldSettings
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8ad4fc7c5549404490d5e518333b6b1, type: 3}
 --- !u!1001 &9093579753417994164

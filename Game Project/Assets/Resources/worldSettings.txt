@@ -1,0 +1,20 @@
+worldWidth 5
+worldHeight 5
+
+roomWidth 100
+roomHeight 100
+
+hallWidth 4
+
+squareSize 1
+borderSize 1
+
+smoothTimes 5
+
+wallThresholdSize 25
+roomThresholdSize 25
+
+seed Random
+useRandSeed true
+
+randFillPercent 40

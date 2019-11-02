@@ -190,7 +190,6 @@ public class RoomsGeneration : MapGeneration
             {
                 printExceptionMessage("ConnectClosestRooms", e);
             }
-            
 
             if (possibleConnectionFound && !forceAccessibilityFromMainRoom) //checkAgain if one of the rooms isnt connected to the main room
                 createPassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
@@ -353,7 +352,6 @@ public class RoomsGeneration : MapGeneration
         return tiles;
     }
 
-
     private bool inMapRange(int posX, int posY)
     {
         return posX >= 0 && posX < RoomWidth && posY >= 0 && posY < RoomHeight;
@@ -393,7 +391,6 @@ public class RoomsGeneration : MapGeneration
             }
         }
     }
-
 
     /// <summary>
     /// Count the Surrounding walls on the grid.

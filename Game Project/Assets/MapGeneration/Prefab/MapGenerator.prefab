@@ -45,10 +45,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Room_prefab: {fileID: 8367393367119542583, guid: 60a29f2000b0c504293fee0794f28fa5,
     type: 3}
-  WorldWidth: 5
-  WorldHeight: 5
-  RoomWidth: 250
-  RoomHeight: 250
+  WorldWidth: 1
+  WorldHeight: 1
+  RoomWidth: 225
+  RoomHeight: 225
   HalfWidth: 0
   HalfHeight: 0
   HallWidth: 5
