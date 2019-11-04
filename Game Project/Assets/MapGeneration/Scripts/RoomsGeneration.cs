@@ -7,11 +7,16 @@ using UnityEngine;
 public class RoomsGeneration : MapGeneration
 {
     private int[,] TileMap;
+    private int[,] BorderMap;
+    private int borderWidth, borderHeight;
+    private List<Room> Rooms;
+    public Vector3 worldPos;
     object sharedLock;
 
     // Start is called before the first frame update
     void Start()
     {
+        worldPos = this.transform.position;
         sharedLock = new object();
         GenerateRooms();
     }
@@ -19,7 +24,68 @@ public class RoomsGeneration : MapGeneration
     // Update is called once per frame
     void Update()
     {
-        //if (Input.GetMouseButtonDown(0)) GenerateRooms();
+        
+    }
+
+    public double getDistance(in Vector3 a, in Vector3 b)
+    {
+        double px = Math.Pow((a.x - b.x), 2);
+        double py = Math.Pow((a.y - b.y), 2);
+        double pz = Math.Pow((a.z - b.z), 2);
+        return Math.Sqrt(px + py + pz);
+    }
+
+    /// <summary>
+    /// Create Passage From closest Tile to the point
+    /// </summary>
+    /// <param name="point"></param>
+    public void connectToPoint(in Vector3 point)
+    {
+        //print(this.transform.name);
+        //print("Got Point to draw to: " + point);
+        //print("\tWorldOrigin: " + worldPos);
+        //Vector3 maxPoint = worldPos + new Vector3(RoomWidth + HalfWidth, 0, RoomHeight + HalfHeight);
+        //print("\tWolrdMaxPoint: "+ maxPoint);
+
+
+        Coordinate pointCoord = new Coordinate((int)point.x, (int)point.y);
+        Coordinate closestRoomTile = pointCoord;
+        Vector3 tilePos = Vector3.zero;
+        int closestRoomDistance = RoomHeight * RoomWidth;
+        foreach (Room r in Rooms)
+        {
+            foreach(Coordinate tile in r.edgeTiles)
+            {
+                tilePos = toWorldPos(tile);
+                int distanceBetweenRooms = (int)(Mathf.Pow(tile.tileX - pointCoord.tileX, 2) + Mathf.Pow(tile.tileY - pointCoord.tileY, 2));
+                //float distance = (float)getDistance(tilePos, point);
+                if(distanceBetweenRooms < closestRoomDistance)
+                {
+                    closestRoomDistance = distanceBetweenRooms;
+                    closestRoomTile = tile;
+                }
+            }
+        }
+        createPassage(closestRoomTile, pointCoord);
+        //print("\tClosestTilePos: " + tilePos);
+    }
+
+    public void generateRoomMesh()
+    {
+        //print("Room: " + this.transform.name);
+        //debugPrintRoom();
+        for (int x = 0; x < borderWidth; x++)
+        {
+            for (int y = 0; y < borderHeight; y++)
+            {
+                if (x >= BorderSize && x < RoomWidth + BorderSize && y >= BorderSize && y < RoomHeight + BorderSize)
+                    BorderMap[x, y] = TileMap[x - BorderSize, y - BorderSize];
+                //else
+                    //BorderMap[x, y] = 1;
+            }
+        }
+        MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        meshGen.GenerateMesh(BorderMap, SquareSize);
     }
 
     private void GenerateRooms()
@@ -30,22 +96,13 @@ public class RoomsGeneration : MapGeneration
             SmoothMap();
         ProcessMap();
 
-        int borderWidth = RoomWidth + BorderSize * 2;
-        int borderHeight = RoomHeight + BorderSize * 2;
-        int[,] borderedMap = new int[borderWidth, borderHeight];
-        for(int x = 0; x < borderWidth; x++)
-        {
-            for(int y = 0; y < borderHeight; y++)
-            {
-                if (x >= BorderSize && x < RoomWidth + BorderSize && y >= BorderSize && y < RoomHeight + BorderSize)
-                    borderedMap[x, y] = TileMap[x - BorderSize, y - BorderSize];
-                else
-                    borderedMap[x, y] = 1;
-            }
-        }
-
-        MeshGenerator meshGen = GetComponent<MeshGenerator>();
-        meshGen.GenerateMesh(borderedMap, SquareSize);
+        //CreateBorderLayout for MeshGeneration
+        borderWidth = RoomWidth + BorderSize * 2;
+        borderHeight = RoomHeight + BorderSize * 2;
+        BorderMap = new int[borderWidth, borderHeight];
+        this.transform.parent.SendMessage("roomFinished");
+        //MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        //meshGen.GenerateMesh(BorderMap, SquareSize);
     }
 
     /// <summary>
@@ -57,20 +114,19 @@ public class RoomsGeneration : MapGeneration
 
         //Get Wall Regions and convert them to a floor tile if the Region of walls do not meet or exceed the threshold amount
         List<List<Coordinate>> wallRegions = GetRegions(1);
-        regionConvert(wallRegions, 0, WallThresholdSize, ref remainingRooms);
+        regionConvert(in wallRegions, 0, WallThresholdSize, ref remainingRooms);
 
         //Get Floor Regions and convert them to wall tiles if the region does not meet or exceed the required threshold amount
         //Get the Room Regions back to connect the Rooms after
         List<List<Coordinate>> roomRegions = GetRegions(0);
-        regionConvert(roomRegions, 1, RoomThresholdSize, ref remainingRooms, true);
-
-        //print("Remaining Room size: " + remainingRooms.Count);
+        regionConvert(in roomRegions, 1, RoomThresholdSize, ref remainingRooms, true);
 
         remainingRooms.Sort();
         remainingRooms[0].MainRoom = true;
         remainingRooms[0].AccessibleFromMainRoom = true;
 
-        connectClosestRooms(remainingRooms);
+        connectClosestRooms(ref remainingRooms);
+        this.Rooms = remainingRooms;
     }
 
     /// <summary>
@@ -79,7 +135,7 @@ public class RoomsGeneration : MapGeneration
     /// <param name="Regions">List of Regions</param>
     /// <param name="conversion">To convert to</param>
     /// <param name="threshold">Size requirment</param>
-    private void regionConvert(List<List<Coordinate>> Regions, int conversion, int threshold, ref List<Room> remainingRooms, bool setRemianing = false)
+    private void regionConvert(in List<List<Coordinate>> Regions, int conversion, int threshold, ref List<Room> remainingRooms, bool setRemianing = false)
     {
         try
         {
@@ -101,11 +157,11 @@ public class RoomsGeneration : MapGeneration
         }
         catch (Exception e)
         {
-            printExceptionMessage("RegionConvert", e);
+            printExceptionMessage("RegionConvert Exception: ", e);
         }
     }
 
-    private void connectClosestRooms(List<Room> regionRooms, bool forceAccessibilityFromMainRoom = false)
+    private void connectClosestRooms(ref List<Room> regionRooms, bool forceAccessibilityFromMainRoom = false)
     {
         List<Room> A_rooms = new List<Room>();
         List<Room> B_rooms = new List<Room>();
@@ -116,13 +172,11 @@ public class RoomsGeneration : MapGeneration
             {
                 if (room.AccessibleFromMainRoom)
                 {
-                    lock (sharedLock)
-                        B_rooms.Add(room);
+                    lock (sharedLock) B_rooms.Add(room);
                 }
                 else
                 {
-                    lock (sharedLock)
-                        A_rooms.Add(room);
+                    lock (sharedLock) A_rooms.Add(room);
                 }
             });
         }
@@ -192,26 +246,32 @@ public class RoomsGeneration : MapGeneration
             }
 
             if (possibleConnectionFound && !forceAccessibilityFromMainRoom) //checkAgain if one of the rooms isnt connected to the main room
-                createPassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+                createPassage(in bestTileA, in bestTileB, in bestRoomA, in bestRoomB);
         }//Foreach RoomA ends here
 
         if (possibleConnectionFound && forceAccessibilityFromMainRoom)
         {
-            createPassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
-            connectClosestRooms(regionRooms, true);
+            createPassage(in bestTileA, in bestTileB, in bestRoomA, in bestRoomB);
+            connectClosestRooms(ref regionRooms, true);
         }
 
         if (!forceAccessibilityFromMainRoom)
-            connectClosestRooms(regionRooms, true);
+            connectClosestRooms(ref regionRooms, true);
     }
 
-    private void createPassage(Room roomA, Room roomB, Coordinate tileA, Coordinate tileB)
+    private void createPassage(in Coordinate tileA, in Coordinate tileB, in Room roomA = null, in Room roomB = null)
     {
-        Room.connectRooms(roomA, roomB);
-        //Debug.DrawLine(coordToWorldPos(tileA), coordToWorldPos(tileB), Color.green, 100);
+        if(roomA != null && roomB != null)
+            Room.connectRooms(roomA, roomB);
+        Debug.DrawLine(toWorldPos(tileA), toWorldPos(tileB), Color.green, 100);
 
-        List<Coordinate> line = getLine(tileA, tileB);
+        List<Coordinate> line = getLine(in tileA, in tileB);
         Parallel.ForEach(line, c => drawCircle(c, HallWidth));
+    }
+
+    private Vector3 toWorldPos(Coordinate tile)
+    {
+        return this.worldPos + tile.toWorldPos();
     }
 
     private void drawCircle(Coordinate center, int radius)
@@ -226,7 +286,7 @@ public class RoomsGeneration : MapGeneration
                 {
                     int drawX = center.tileX + x;
                     int drawY = center.tileY + y;
-                    lock(sharedLock)
+                    lock (sharedLock)
                     {
                         if (inMapRange(drawX, drawY))
                             TileMap[drawX, drawY] = 0;
@@ -242,7 +302,7 @@ public class RoomsGeneration : MapGeneration
     /// <param name="pointA"></param>
     /// <param name="pointB"></param>
     /// <returns></returns>
-    private List<Coordinate> getLine(Coordinate pointA, Coordinate pointB)
+    private List<Coordinate> getLine(in Coordinate pointA, in Coordinate pointB)
     {
         List<Coordinate> line = new List<Coordinate>();
         int pX              = pointA.tileX;
@@ -283,11 +343,6 @@ public class RoomsGeneration : MapGeneration
         return line;
     }
 
-    private Vector3 coordToWorldPos(Coordinate tile)
-    {
-        return new Vector3(-HalfWidth + .5f + tile.tileX, 2, -HalfHeight + .5f + tile.tileY);
-    }
-
     /// <summary>
     /// Get Lists of Rooms/Regions based on tileType (open, or wall)
     /// </summary>
@@ -304,7 +359,7 @@ public class RoomsGeneration : MapGeneration
             {
                 if(mapFlags[posX, posY] == 0 && TileMap[posX, posY] == tileType)
                 {
-                    List<Coordinate> region = GetRegionTiles(posX, posY);
+                    List<Coordinate> region = GetRegionTiles(in posX, in posY);
                     regions.Add(region);
                     foreach (Coordinate tile in region)
                         mapFlags[tile.tileX, tile.tileY] = 1;
@@ -320,7 +375,7 @@ public class RoomsGeneration : MapGeneration
     /// <param name="startX"></param>
     /// <param name="startY"></param>
     /// <returns></returns>
-    private List<Coordinate> GetRegionTiles(int startX, int startY)
+    private List<Coordinate> GetRegionTiles(in int startX, in int startY)
     {
         List<Coordinate> tiles = new List<Coordinate>();
         int[,] mapFlags = new int[RoomWidth, RoomHeight];
@@ -352,7 +407,7 @@ public class RoomsGeneration : MapGeneration
         return tiles;
     }
 
-    private bool inMapRange(int posX, int posY)
+    private bool inMapRange(in int posX, in int posY)
     {
         return posX >= 0 && posX < RoomWidth && posY >= 0 && posY < RoomHeight;
     }
@@ -399,7 +454,7 @@ public class RoomsGeneration : MapGeneration
     /// <param name="x">mapX position</param>
     /// <param name="y">mapY position</param>
     /// <returns></returns>
-    public int GetSurroundingWallCount(int x, int y)
+    public int GetSurroundingWallCount(in int x, in int y)
     {
         int wallCount = 0;
         for(int neighbourX = x-1; neighbourX <= x + 1; neighbourX++)
@@ -418,7 +473,7 @@ public class RoomsGeneration : MapGeneration
         return wallCount;
     }
 
-    struct Coordinate
+    public struct Coordinate
     {
         public int tileX, tileY;
         public Coordinate(int posX, int posY)
@@ -426,9 +481,13 @@ public class RoomsGeneration : MapGeneration
             tileX = posX;
             tileY = posY;
         }
+        public Vector3 toWorldPos()
+        {
+            return new Vector3(-HalfWidth + .5f + tileX, 2, -HalfHeight + .5f + tileY);
+        }
     }
     
-    private class Room : IComparable<Room>
+    public class Room : IComparable<Room>
     {
         public List<Coordinate> tiles;
         public List<Coordinate> edgeTiles;
@@ -485,20 +544,20 @@ public class RoomsGeneration : MapGeneration
             }
         }
 
-        public void connectRoom(Room room)
+        public void connectRoom(in Room room)
         {
             this.connectedRooms.Add(room);
         }
 
-        public static void connectRooms(Room roomA, Room roomB)
+        public static void connectRooms(in Room roomA, in Room roomB)
         {
             if (roomA.AccessibleFromMainRoom)
                 roomB.setAccessibleFromMainRoom();
             else if (roomB.AccessibleFromMainRoom)
                 roomA.setAccessibleFromMainRoom();
 
-            roomA.connectRoom(roomB);
-            roomA.connectRoom(roomA);
+            roomA.connectRoom(in roomB);
+            roomA.connectRoom(in roomA);
         }
 
         public bool IsConnected(Room otherRoom)
@@ -510,5 +569,22 @@ public class RoomsGeneration : MapGeneration
         {
             return otherRoom.roomSize.CompareTo(roomSize);
         }
+    }
+
+    private void debugPrintRoom()
+    {
+        string line = "[\n";
+        for(int z = 0; z < borderHeight; z++)
+        {
+            line = "\t";
+            for(int x = 0; x < borderWidth; x++)
+            {
+                line += BorderMap[z, x].ToString();
+                line += z == borderHeight - 1 ? ",": "";
+            }
+            line += "\n";
+        }
+        line += "]\n";
+        print(line);
     }
 }

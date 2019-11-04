@@ -29,23 +29,26 @@ public class MapGeneration : MonoBehaviour
     public static int RandFillPercent;
     public static bool UseRandFillPercent = false;
 
+    private static int roomProcessCount = 0;
+    private static int numRooms = 0;
+
     private Map_Room[,] Map;
 
     // Start is called before the first frame update
     void Start()
     {
         importMapSettings(mapSettingsName);
+        numRooms = WorldWidth * WorldHeight;
         HalfWidth = RoomWidth / 2;
         HalfHeight = RoomHeight / 2;
         Map = new Map_Room[WorldWidth, WorldHeight];
         createWorld();
-        processWorld();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void createWorld()
@@ -59,14 +62,101 @@ public class MapGeneration : MonoBehaviour
             for(int z = 0; z < WorldHeight; z++)
             {
                 zPos = getRoomPosZ(z);
-                createRoom(x, z, new Vector3(xPos, 0, zPos), (UnityEngine.Random.Range(0, 100) < RandFillPercent || (x==0 && z==0)) ? true : false);
+                createRoom(x, z, new Vector3(xPos, 0, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
             }
         }
     }
 
-    private void processWorld()
+    private void connectRooms()
     {
+        List<Map_Room> notConnected = new List<Map_Room>();
+        System.Random rand = new System.Random();
 
+        foreach (Map_Room room in Map)
+            notConnected.Add(room);
+        /////////////////////////////////////////////////////////////////////////////////////////////////// While Rooms not Connected
+        while(notConnected.Count > 0)
+        {
+            int ri = rand.Next(0, notConnected.Count - 1);
+            int x = notConnected[ri].mapIndex_X;
+            int z = notConnected[ri].mapIndex_Z;
+            int oX, oZ;
+
+            //Room is connected to itself
+            if (!Map[x, z].connections.Contains((x, z)))
+                Map[x, z].connections.Add((x, z));
+
+            if (Map[x,z].ConnectedToMainRoom)                                    //Is current Room mainRoom or connected to mainRoom?
+            {
+                notConnected.RemoveAt(ri);
+                print("CurRoom: " + Map[x,z].Room.name+" is Connected to Rooms: ");
+                foreach ((int, int) r in Map[x,z].connections)
+                    print("\t"+Map[r.Item1, r.Item1].Room.name);
+            }
+            else
+            {
+                bool gotRoom = false;
+                do///////////////////////////////////////////////////////////////////////////////////////////Get Random Surrounding Room
+                {
+
+                    oX = rand.Next(x - 1, x + 1);
+                    oZ = rand.Next(z - 1, z + 1);
+                    do////////////////////////////////////////////////////////////////////////////////////////////////////////////Handle Room Index Boundaries and make sure other room isnt already connected to
+                    {
+                        if (oX == x && oZ == z)                       //Handle Room same as curRoom
+                        {
+                            oX += UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
+                            oZ += UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
+                        }
+                        if (oX > WorldWidth - 1) oX -= 1;                                              //Handle RoomX greater than worldWidth
+                        else if (oX < 0) oX += 1;                                                      //Handle RoomX less than 0
+                        if (oZ > WorldHeight - 1) oZ -= 1;                                             //Handle RoomZ greater than worldHeight
+                        else if (oZ < 0) oZ += 1;                                                      //Handle RoomZ less than 0
+                    } while (oX == x && oZ == z);
+
+                    if (!Map[x, z].connections.Contains((oX, oZ)))
+                        gotRoom = true;
+                } while (!gotRoom);
+
+                //Add Connected Rooms lists to each other connecting all rooms together
+                if(Map[oX,oZ].ConnectedToMainRoom)
+                {
+                    Map[x, z].ConnectedToMainRoom = true;
+                    foreach((int,int) coord in Map[x,z].connections)
+                        Map[coord.Item1, coord.Item2].ConnectedToMainRoom = true;
+                }
+                Map[x, z].connections.Add((oX, oZ));
+                Map[x, z].connections.UnionWith(Map[oX, oZ].connections);
+                Map[oX, oZ].connections.UnionWith(Map[x, z].connections);
+
+                //SetPoint between Rooms to create a passage to
+                Vector3 connectionPoint = new Vector3(0, 0, 0);
+                //Set point X Pos
+                if (oX < x)
+                    connectionPoint.x = Map[x,z].worldPos.x;
+                else if (oX > x)
+                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth;
+                else
+                    connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x, Map[x, z].worldPos.x + RoomWidth);
+                //Set point Z Pos
+                if (oZ < z)
+                    connectionPoint.z = Map[x, z].worldPos.z;
+                else if (oZ > z)
+                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight;
+                else
+                    connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z, Map[x, z].worldPos.z + RoomHeight);
+
+                //Tell Rooms to create passage to point specified
+                Map[x, z].Room.SendMessage("connectToPoint", connectionPoint);
+                Map[oX, oZ].Room.SendMessage("connectToPoint", connectionPoint);
+            }
+        }
+    }
+
+    private void generateMeshes()
+    {
+        foreach (Map_Room room in Map)
+            room.Room.SendMessage("generateRoomMesh");
     }
 
     private int getRoomPosX(int x)
@@ -84,29 +174,60 @@ public class MapGeneration : MonoBehaviour
         return Map[x,z].Generated;
     }
     
-    Map_Room createRoomStruct(bool generated, bool isConnected, GameObject newRoom = null)
+    Map_Room createRoomStruct(int x, int z, bool generated, bool isConnected, GameObject newRoom = null)
     {
-        return new Map_Room() { Room = newRoom, Generated = generated, ConnectedToMainRoom = isConnected };
+        return new Map_Room() { Room = newRoom, mapIndex_X = x, mapIndex_Z = z, connections = new HashSet<(int, int)>(), Generated = generated, ReadyToGenMesh = false, ConnectedToMainRoom = isConnected };
     }
 
     private void createRoom(int x, int z, Vector3 roomPosition, bool doGeneration)
     {
         if (doGeneration)
         {
-            Map[x, z] = createRoomStruct(doGeneration, (x == 0 && z == 0), Instantiate(Room_prefab, roomPosition, Room_prefab.transform.rotation, this.transform));
+            Map[x, z] = createRoomStruct(x, z, doGeneration, (x == 0 && z == 0), Instantiate(Room_prefab, roomPosition, Room_prefab.transform.rotation, this.transform));
+            Map[x, z].worldPos = roomPosition;
             Map[x, z].Room.name = "Room: [" + x.ToString() + "," + z.ToString() + "]";
         }
         else
-            Map[x, z] = createRoomStruct(doGeneration, false);
+            Map[x, z] = createRoomStruct(x, z, doGeneration, false);
     }
 
     public struct Map_Room
     {
         public GameObject Room;
-        public List<Map_Room> NeighbourRooms;
+        public int mapIndex_X, mapIndex_Z;
+        public HashSet<(int, int)> connections;
+        public Vector3 worldPos;
         public bool Generated;
+        public bool ReadyToGenMesh;
         public bool ConnectedToMainRoom;
     };
+
+    private void roomReady(Transform t)
+    {
+        for(int x = 0; x < WorldWidth; x++)
+        {
+            for(int z = 0; z < WorldHeight; z++)
+            {
+                if(Map[x,z].Generated)
+                {
+                    print("Transform: " + t);
+                    print("Room: " + Map[x, z].Room);
+                    if (Map[x, z].Room != null && Map[x, z].Room.name == t.name)
+                        Map[x, z].ReadyToGenMesh = true;
+                }
+            }
+        }
+    }
+
+    private void roomFinished()
+    {
+        roomProcessCount++;
+        if (roomProcessCount == numRooms)
+        {
+            connectRooms();
+            generateMeshes();
+        }
+    }
 
     public void printVariables()
     {
