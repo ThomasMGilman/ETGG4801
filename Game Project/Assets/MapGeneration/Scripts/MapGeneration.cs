@@ -131,24 +131,43 @@ public class MapGeneration : MonoBehaviour
 
                 //SetPoint between Rooms to create a passage to
                 Vector3 connectionPoint = new Vector3(0, 0, 0);
+                Vector3 otherPoint = new Vector3(0, 0, 0);
+                //bool belowOrAbove = false;
                 //Set point X Pos
                 if (oX < x)
-                    connectionPoint.x = Map[x,z].worldPos.x;
+                { 
+                    connectionPoint.x = Map[x, z].worldPos.x;
+                }
                 else if (oX > x)
-                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth;
+                { 
+                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth + HalfWidth;
+                }
                 else
+                { 
                     connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x, Map[x, z].worldPos.x + RoomWidth);
+                }
                 //Set point Z Pos
                 if (oZ < z)
+                { 
                     connectionPoint.z = Map[x, z].worldPos.z;
+                }
                 else if (oZ > z)
-                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight;
+                { 
+                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight + HalfHeight;
+                }
                 else
+                { 
                     connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z, Map[x, z].worldPos.z + RoomHeight);
+                }
 
                 //Tell Rooms to create passage to point specified
+                print("connecting " + Map[x, z].Room.name + " to " + Map[oX, oZ].Room.name);
+                print("their Origins are: " + Map[x, z].worldPos + " and " + Map[oX, oZ].worldPos);
+                print("Connecting at point: " + connectionPoint);
+
                 Map[x, z].Room.SendMessage("connectToPoint", connectionPoint);
                 Map[oX, oZ].Room.SendMessage("connectToPoint", connectionPoint);
+                print("\n");
             }
         }
     }
@@ -156,7 +175,10 @@ public class MapGeneration : MonoBehaviour
     private void generateMeshes()
     {
         foreach (Map_Room room in Map)
+        {
+            room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
+        }
     }
 
     private int getRoomPosX(int x)

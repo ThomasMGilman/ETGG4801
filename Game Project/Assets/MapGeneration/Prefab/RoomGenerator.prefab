@@ -142,21 +142,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Room_prefab: {fileID: 0}
-  WorldWidth: 5
-  WorldHeight: 5
-  RoomWidth: 250
-  RoomHeight: 250
-  HalfWidth: 0
-  HalfHeight: 0
-  HallWidth: 5
-  SquareSize: 1
-  BorderSize: 2
-  SmoothTimes: 5
-  WallThresholdSize: 50
-  RoomThresholdSize: 50
-  Seed: Random
-  UseRandSeed: 1
-  RandFillPercent: 40
+  mapSettingsName: 
+  worldPos: {x: 0, y: 0, z: 0}
 --- !u!1 &8367393367212254387
 GameObject:
   m_ObjectHideFlags: 0
