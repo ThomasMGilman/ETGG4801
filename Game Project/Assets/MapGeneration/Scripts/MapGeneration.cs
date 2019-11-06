@@ -11,15 +11,19 @@ public class MapGeneration : MonoBehaviour
 
     public static int WorldWidth = 5, WorldHeight = 5;              //dimensions of Wold Space
     public static int RoomWidth = 100, RoomHeight = 100;            //dimensions of Room space
-    public static int HalfWidth, HalfHeight;
+    public static float HalfWidth, HalfHeight;
+    public static float HalfHalfWidth, HalfHalfHeight;
 
     public static int HallWidth = 1;
     public static int SquareSize = 1;
+    public static float halfSquareSize = .5f;
     public static int BorderSize = 1;
     public static int SmoothTimes = 5;                              //Times to smooth the map out
 
     public static int WallThresholdSize = 50;
+    public static float halfWallThreshold = 25;
     public static int RoomThresholdSize = 50;
+    public static float halfRoomThreshold = 25;
 
     public static string Seed = "Random";                           //When generating map using seed, uses Hash of string
     public static bool UseRandSeed = false;
@@ -39,8 +43,6 @@ public class MapGeneration : MonoBehaviour
     {
         importMapSettings(mapSettingsName);
         numRooms = WorldWidth * WorldHeight;
-        HalfWidth = RoomWidth / 2;
-        HalfHeight = RoomHeight / 2;
         Map = new Map_Room[WorldWidth, WorldHeight];
         createWorld();
     }
@@ -55,7 +57,7 @@ public class MapGeneration : MonoBehaviour
     {
         if (UseRandSeed) Seed = DateTime.Now.Ticks.ToString();
 
-        int xPos, zPos;
+        float xPos, zPos;
         for(int x = 0; x < WorldWidth; x++)
         {
             xPos = getRoomPosX(x);
@@ -73,7 +75,9 @@ public class MapGeneration : MonoBehaviour
         System.Random rand = new System.Random();
 
         foreach (Map_Room room in Map)
+        {
             notConnected.Add(room);
+        }
         /////////////////////////////////////////////////////////////////////////////////////////////////// While Rooms not Connected
         while(notConnected.Count > 0)
         {
@@ -105,9 +109,10 @@ public class MapGeneration : MonoBehaviour
                     {
                         if (oX == x && oZ == z)                       //Handle Room same as curRoom
                         {
-                            oX += UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
-                            oZ += UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
-                        }
+                            oX += rand.Next(0, 1) == 0 ? 1 : -1;//UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
+                            oZ += rand.Next(0, 1) == 0 ? 1 : -1;//UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
+                            rand = new System.Random((int)DateTime.Now.Ticks);
+                        };
                         if (oX > WorldWidth - 1) oX -= 1;                                              //Handle RoomX greater than worldWidth
                         else if (oX < 0) oX += 1;                                                      //Handle RoomX less than 0
                         if (oZ > WorldHeight - 1) oZ -= 1;                                             //Handle RoomZ greater than worldHeight
@@ -131,42 +136,42 @@ public class MapGeneration : MonoBehaviour
 
                 //SetPoint between Rooms to create a passage to
                 Vector3 connectionPoint = new Vector3(0, 0, 0);
-                Vector3 otherPoint = new Vector3(0, 0, 0);
-                //bool belowOrAbove = false;
                 //Set point X Pos
                 if (oX < x)
                 { 
-                    connectionPoint.x = Map[x, z].worldPos.x;
+                    connectionPoint.x = Map[x, z].worldPos.x - HalfWidth;
                 }
                 else if (oX > x)
                 { 
-                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth + HalfWidth;
+                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth;
                 }
                 else
                 { 
-                    connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x, Map[x, z].worldPos.x + RoomWidth);
+                    connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x-HalfWidth, Map[x, z].worldPos.x + RoomWidth);
                 }
                 //Set point Z Pos
                 if (oZ < z)
                 { 
-                    connectionPoint.z = Map[x, z].worldPos.z;
+                    connectionPoint.z = Map[x, z].worldPos.z - HalfHeight;
                 }
                 else if (oZ > z)
                 { 
-                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight + HalfHeight;
+                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight;
                 }
                 else
                 { 
-                    connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z, Map[x, z].worldPos.z + RoomHeight);
+                    connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z - HalfHeight, Map[x, z].worldPos.z + RoomHeight);
                 }
 
+                pointToSend p1 = new pointToSend() { c = Color.red, v = connectionPoint }; //Correct
+                pointToSend p2 = new pointToSend() { c = Color.blue, v = connectionPoint };
                 //Tell Rooms to create passage to point specified
                 print("connecting " + Map[x, z].Room.name + " to " + Map[oX, oZ].Room.name);
                 print("their Origins are: " + Map[x, z].worldPos + " and " + Map[oX, oZ].worldPos);
                 print("Connecting at point: " + connectionPoint);
 
-                Map[x, z].Room.SendMessage("connectToPoint", connectionPoint);
-                Map[oX, oZ].Room.SendMessage("connectToPoint", connectionPoint);
+                Map[x, z].Room.SendMessage("connectToPoint", p1);
+                Map[oX, oZ].Room.SendMessage("connectToPoint", p2);
                 print("\n");
             }
         }
@@ -181,12 +186,12 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
-    private int getRoomPosX(int x)
+    private float getRoomPosX(int x)
     {
         return x * (RoomWidth + HalfWidth);
     }
 
-    private int getRoomPosZ(int z)
+    private float getRoomPosZ(int z)
     {
         return z * (RoomHeight + HalfHeight);
     }
@@ -232,8 +237,6 @@ public class MapGeneration : MonoBehaviour
             {
                 if(Map[x,z].Generated)
                 {
-                    print("Transform: " + t);
-                    print("Room: " + Map[x, z].Room);
                     if (Map[x, z].Room != null && Map[x, z].Room.name == t.name)
                         Map[x, z].ReadyToGenMesh = true;
                 }
@@ -249,6 +252,12 @@ public class MapGeneration : MonoBehaviour
             connectRooms();
             generateMeshes();
         }
+    }
+
+    public struct pointToSend
+    {
+        public Color c;
+        public Vector3 v;
     }
 
     public void printVariables()
@@ -305,9 +314,13 @@ public class MapGeneration : MonoBehaviour
                         break;
                     case ("roomwidth"):
                         RoomWidth = Int32.Parse(line[1].Trim());
+                        HalfWidth = RoomWidth / 2;
+                        HalfHalfWidth = HalfWidth / 2;
                         break;
                     case ("roomheight"):
                         RoomHeight = Int32.Parse(line[1].Trim());
+                        HalfHeight = RoomHeight / 2;
+                        HalfHalfHeight = HalfHeight / 2;
                         break;
                     case ("hallwidth"):
                         HallWidth = Int32.Parse(line[1].Trim());
@@ -315,6 +328,7 @@ public class MapGeneration : MonoBehaviour
 
                     case ("squaresize"):
                         SquareSize = Int32.Parse(line[1].Trim());
+                        halfSquareSize = SquareSize / 2;
                         break;
                     case ("bordersize"):
                         BorderSize = Int32.Parse(line[1].Trim());
@@ -326,9 +340,11 @@ public class MapGeneration : MonoBehaviour
 
                     case ("wallthresholdsize"):
                         WallThresholdSize = Int32.Parse(line[1].Trim());
+                        halfWallThreshold = WallThresholdSize / 2;
                         break;
                     case ("roomthresholdsize"):
                         RoomThresholdSize = Int32.Parse(line[1].Trim());
+                        halfRoomThreshold = RoomThresholdSize / 2;
                         break;
 
                     case ("seed"):

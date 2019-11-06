@@ -9,6 +9,7 @@ public class RoomsGeneration : MapGeneration
     private int[,] TileMap;
     private int[,] BorderMap;
     private int borderWidth, borderHeight;
+    private int roomX, roomZ;
     private List<Room> Rooms;
     public Vector3 worldPos;
     object sharedLock;
@@ -17,6 +18,7 @@ public class RoomsGeneration : MapGeneration
     void Start()
     {
         worldPos = this.transform.position;
+        Debug.DrawLine(worldPos, worldPos + new Vector3(0, 20, 0), Color.cyan, 5000);
         sharedLock = new object();
         GenerateRooms();
     }
@@ -39,14 +41,10 @@ public class RoomsGeneration : MapGeneration
     /// Create Passage From closest Tile to the point
     /// </summary>
     /// <param name="point"></param>
-    public void connectToPoint(in Vector3 point)
+    public void connectToPoint(in pointToSend pointPack)
     {
-        print("\t"+this.transform.name);
-        print("\tGot Point to draw to: " + point);
-        print("\tWorldOrigin: " + worldPos);
-        Vector3 maxPoint = worldPos + new Vector3(RoomWidth + HalfWidth, 0, RoomHeight + HalfHeight);
-        print("\tWolrdMaxPoint: "+ maxPoint);
-
+        Vector3 point = pointPack.v;
+        Color drawColor = pointPack.c;
 
         Coordinate pointCoord = new Coordinate((int)point.x, (int)point.y);
         Coordinate closestRoomTile = pointCoord;
@@ -58,26 +56,23 @@ public class RoomsGeneration : MapGeneration
             foreach(Coordinate tile in r.edgeTiles)
             {
                 tilePos = toWorldPos(tile);
-                Debug.DrawLine(tilePos, tilePos+heightUP, Color.black, 5000);
                 
-                //int distanceBetweenRooms = (int)(Mathf.Pow(tilePos.x - pointCoord.tileX, 2) + Mathf.Pow(tilePos.z - pointCoord.tileY, 2));
-                float distance = (float)getDistance(tilePos, point);
-                if(distance < closestRoomDistance)
+                int distanceBetweenRooms = (int)(Mathf.Pow(tilePos.x - pointCoord.tileX, 2) + Mathf.Pow(tilePos.z - pointCoord.tileY, 2));
+                //float distance = (float)getDistance(tilePos, point);
+                if(distanceBetweenRooms < closestRoomDistance)
                 {
-                    closestRoomDistance = (int)distance;
+                    closestRoomDistance = distanceBetweenRooms;
                     closestRoomTile = tile;
                 }
             }
         }
-        createPassage(closestRoomTile, pointCoord);
-        Debug.DrawLine(toWorldPos(closestRoomTile), toWorldPos(pointCoord), Color.red, 5000);
-        print("\tClosestTilePos: " + tilePos);
+        createPassage(closestRoomTile, pointCoord,null,null, false);
+        Debug.DrawLine(toWorldPos(closestRoomTile), toWorldPos(pointCoord), drawColor, 5000);
+        print("\t"+this.name+" ClosestTilePos: " + tilePos);
     }
 
     public void generateRoomMesh()
     {
-        //print("Room: " + this.transform.name);
-        //debugPrintRoom();
         for (int x = 0; x < borderWidth; x++)
         {
             for (int y = 0; y < borderHeight; y++)
@@ -165,7 +160,7 @@ public class RoomsGeneration : MapGeneration
         }
     }
 
-    private void connectClosestRooms(ref List<Room> regionRooms, bool forceAccessibilityFromMainRoom = false)
+    private void connectClosestRooms(ref List<Room> regionRooms, bool forceAccessibilityFromMainRoom = false, bool showDrawRoom = true)
     {
         List<Room> A_rooms = new List<Room>();
         List<Room> B_rooms = new List<Room>();
@@ -250,7 +245,7 @@ public class RoomsGeneration : MapGeneration
             }
 
             if (possibleConnectionFound && !forceAccessibilityFromMainRoom) //checkAgain if one of the rooms isnt connected to the main room
-                createPassage(in bestTileA, in bestTileB, in bestRoomA, in bestRoomB);
+                createPassage(in bestTileA, in bestTileB, in bestRoomA, in bestRoomB, showDrawRoom);
         }//Foreach RoomA ends here
 
         if (possibleConnectionFound && forceAccessibilityFromMainRoom)
@@ -263,24 +258,22 @@ public class RoomsGeneration : MapGeneration
             connectClosestRooms(ref regionRooms, true);
     }
 
-    private void createPassage(in Coordinate tileA, in Coordinate tileB, in Room roomA = null, in Room roomB = null)
+    private void createPassage(in Coordinate tileA, in Coordinate tileB, in Room roomA = null, in Room roomB = null, bool showPassageDraw = true)
     {
         if(roomA != null && roomB != null)
             Room.connectRooms(roomA, roomB);
 
-        Debug.DrawLine(toWorldPos(tileA), toWorldPos(tileB), Color.green, 100);
+        if(showPassageDraw)
+            Debug.DrawLine(toWorldPos(tileA), toWorldPos(tileB), Color.green, 100);
 
         List<Coordinate> line = getLine(in tileA, in tileB);
         Parallel.ForEach(line, c => drawCircle(c, HallWidth));
     }
 
-    private Vector3 toWorldPos(Coordinate tile)
+    private Vector3 toWorldPos(Coordinate tile)/////////////////////////////////////////////////////////////////////////////////////////////////////////////
     {
-        Vector3 tilesWorldPos = tile.toWorldPos();
-        //tilesWorldPos = (tilesWorldPos * 1.5f); 
-        //tilesWorldPos.x;
-        //tilesWorldPos.z;
-        return tilesWorldPos + this.worldPos;//(tilesWorldPos*1.5f + this.worldPos * .5f)  ;
+        Vector3 tilesWorldPos = tile.toWorldPos() * 1.5f;
+        return tilesWorldPos + this.worldPos;
     }
 
     private void drawCircle(Coordinate center, int radius)
@@ -492,7 +485,9 @@ public class RoomsGeneration : MapGeneration
         }
         public Vector3 toWorldPos()
         {
-            return new Vector3(-HalfWidth + .5f + tileX, 2, -HalfHeight + .5f + tileY);
+            return new Vector3(-HalfHalfWidth -halfWallThreshold + 5 - 1.5f + tileX, 
+                                2, 
+                                -HalfHalfHeight -halfWallThreshold + 5 - 1.5f + tileY);
         }
     }
     
@@ -597,8 +592,22 @@ public class RoomsGeneration : MapGeneration
         print(line);
     }
 
+    private void setRoomPos((int,int) pos)
+    {
+        print("Room: " + this.name +" origin worldPos: "+worldPos);
+        roomX = pos.Item1;
+        roomZ = pos.Item2;
+        worldPos.x -= roomX * HalfWidth;
+        worldPos.z -= roomZ * HalfHeight;
+        print("new WorldPos: " + worldPos);
+    }
+
     private void debugShowRoomTiles()
     {
+        Coordinate worldTile = new Coordinate((int)this.worldPos.x, (int)this.worldPos.z);
+        Vector3 worldCoord = worldTile.toWorldPos()*1.5f;
+        print("WorldCoord: " + worldCoord);
+        Debug.DrawLine(worldCoord, worldCoord + new Vector3(0, 50, 0), Color.cyan, 5000);
         Vector3 heightUP = new Vector3(0, 5, 0);
         foreach(Room r in Rooms)
         {
