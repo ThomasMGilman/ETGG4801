@@ -66,32 +66,45 @@ public class RoomsGeneration : MapGeneration
             });
         });
         Coordinate tileToDrawTo = new Coordinate(closestRoomTile.tileX, closestRoomTile.tileY);
+        Coordinate tileToDrawToTwo = tileToDrawTo;
         switch (nDir_X)
         {
             case (neighbour.LEFT):
                 tileToDrawTo.tileX = 0;
+                tileToDrawToTwo.tileX = 0;
                 break;
             case (neighbour.RIGHT):
                 tileToDrawTo.tileX = RoomWidth - 1;
+                tileToDrawToTwo.tileX = RoomWidth - 1;
+                break;
+            default:
+                if (tileToDrawTo.tileX > HallWidth)
+                    tileToDrawTo.tileX -= HallWidth;
+                if (tileToDrawToTwo.tileX < RoomWidth - HallWidth)
+                    tileToDrawToTwo.tileX += HallWidth;
                 break;
         }
         switch(nDir_Z)
         {
             case (neighbour.ABOVE):
                 tileToDrawTo.tileY = RoomHeight - 1;
+                tileToDrawToTwo.tileY = RoomHeight - 1;
                 break;
             case (neighbour.BELOW):
                 tileToDrawTo.tileY = 0;
+                tileToDrawToTwo.tileY = 0;
+                break;
+            default:
+                if (tileToDrawTo.tileY > HallWidth)
+                    tileToDrawTo.tileY -= HallWidth;
+                if (tileToDrawToTwo.tileY < RoomWidth - HallWidth)
+                    tileToDrawToTwo.tileY += HallWidth;
                 break;
         }
 
-        /*Vector3 cRT = toWorldPos(closestRoomTile);
-        if (point.x > cRT.x && cRT.x < RoomWidth-2) tileToDrawTo.tileX += 2;
-        else if (point.x < cRT.x && cRT.x > 1) tileToDrawTo.tileX -= 2;
-        if (point.z > cRT.z && cRT.z < RoomHeight-2) tileToDrawTo.tileY += 2;
-        else if (point.z < cRT.z && cRT.z > 1) tileToDrawTo.tileY -= 2;*/
 
         createPassage(closestRoomTile, tileToDrawTo, null,null, false);
+        createPassage(closestRoomTile, tileToDrawToTwo, null, null, false);
         //Debug.DrawLine(toWorldPos(closestRoomTile), point, drawColor, 5000);
     }
 
@@ -510,9 +523,6 @@ public class RoomsGeneration : MapGeneration
         }
         public Vector3 toWorldPos()
         {
-            /*return new Vector3(-HalfHalfWidth -halfWallThreshold + 5 - 1.5f + tileX, 
-                                2, 
-                                -HalfHalfHeight -halfWallThreshold + 5 - 1.5f + tileY);*/
             return new Vector3(-HalfWidth + halfSquareSize + tileX, 2, -HalfHeight + halfSquareSize + tileY);
         }
     }
