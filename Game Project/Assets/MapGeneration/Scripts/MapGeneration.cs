@@ -38,6 +38,7 @@ public class MapGeneration : MonoBehaviour
 
     private Map_Room[,] Map;
 
+    public enum neighbour{ LEFT, RIGHT, SAME_X, ABOVE, BELOW, SAME_Z };
     // Start is called before the first frame update
     void Start()
     {
@@ -93,25 +94,25 @@ public class MapGeneration : MonoBehaviour
             if (Map[x,z].ConnectedToMainRoom)                                    //Is current Room mainRoom or connected to mainRoom?
             {
                 notConnected.RemoveAt(ri);
-                print("CurRoom: " + Map[x,z].Room.name+" is Connected to Rooms: ");
+                /*print("CurRoom: " + Map[x,z].Room.name+" is Connected to Rooms: ");
                 foreach ((int, int) r in Map[x,z].connections)
-                    print("\t"+Map[r.Item1, r.Item1].Room.name);
+                    print("\t"+Map[r.Item1, r.Item1].Room.name);*/
             }
-            else
+            else ////////////////THIS CODE HERE GETS STUCK OCCASSIONALLY WITH MORE ROOMS
             {
                 bool gotRoom = false;
+                //int loops = 0;
                 do///////////////////////////////////////////////////////////////////////////////////////////Get Random Surrounding Room
                 {
-
+                    rand = new System.Random(DateTime.Now.Ticks.GetHashCode());
                     oX = rand.Next(x - 1, x + 1);
                     oZ = rand.Next(z - 1, z + 1);
                     do////////////////////////////////////////////////////////////////////////////////////////////////////////////Handle Room Index Boundaries and make sure other room isnt already connected to
                     {
                         if (oX == x && oZ == z)                       //Handle Room same as curRoom
                         {
-                            oX += rand.Next(0, 1) == 0 ? 1 : -1;//UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
-                            oZ += rand.Next(0, 1) == 0 ? 1 : -1;//UnityEngine.Random.Range(0, 1) == 0 ? 1 : -1;
-                            rand = new System.Random((int)DateTime.Now.Ticks);
+                            oX += rand.Next(0, 1) == 0 ? 1 : -1;
+                            oZ += rand.Next(0, 1) == 0 ? 1 : -1;
                         };
                         if (oX > WorldWidth - 1) oX -= 1;                                              //Handle RoomX greater than worldWidth
                         else if (oX < 0) oX += 1;                                                      //Handle RoomX less than 0
@@ -121,6 +122,7 @@ public class MapGeneration : MonoBehaviour
 
                     if (!Map[x, z].connections.Contains((oX, oZ)))
                         gotRoom = true;
+                    
                 } while (!gotRoom);
 
                 //Add Connected Rooms lists to each other connecting all rooms together
@@ -136,43 +138,64 @@ public class MapGeneration : MonoBehaviour
 
                 //SetPoint between Rooms to create a passage to
                 Vector3 connectionPoint = new Vector3(0, 0, 0);
+                Vector3 otherPoint = new Vector3(0, 0, 0);
+                neighbour n1_X, n2_X, n1_Z, n2_Z;
                 //Set point X Pos
                 if (oX < x)
                 { 
                     connectionPoint.x = Map[x, z].worldPos.x - HalfWidth;
+                    n1_X = neighbour.LEFT;
+
+                    otherPoint.x = Map[oX, oZ].worldPos.x + HalfWidth;
+                    n2_X = neighbour.RIGHT;
                 }
                 else if (oX > x)
                 { 
-                    connectionPoint.x = Map[x, z].worldPos.x + RoomWidth;
+                    connectionPoint.x = Map[x, z].worldPos.x + HalfWidth;
+                    n1_X = neighbour.RIGHT;
+
+                    otherPoint.x = Map[oX, oZ].worldPos.z - HalfWidth;
+                    n2_X = neighbour.LEFT;
                 }
                 else
                 { 
-                    connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x-HalfWidth, Map[x, z].worldPos.x + RoomWidth);
+                    connectionPoint.x = UnityEngine.Random.Range(Map[x, z].worldPos.x-HalfWidth, Map[x, z].worldPos.x + HalfWidth);
+                    otherPoint.x = connectionPoint.x;
+                    n1_X = neighbour.SAME_X;
+                    n2_X = neighbour.SAME_Z;
+                    
                 }
                 //Set point Z Pos
                 if (oZ < z)
                 { 
                     connectionPoint.z = Map[x, z].worldPos.z - HalfHeight;
+                    n1_Z = neighbour.BELOW;
+
+                    otherPoint.z = Map[oX, oZ].worldPos.z + HalfHeight;
+                    n2_Z = neighbour.ABOVE;
                 }
                 else if (oZ > z)
                 { 
-                    connectionPoint.z = Map[x, z].worldPos.z + RoomHeight;
+                    connectionPoint.z = Map[x, z].worldPos.z + HalfHeight;
+                    n1_Z = neighbour.ABOVE;
+
+                    otherPoint.z = Map[oX, oZ].worldPos.z - HalfHeight;
+                    n2_Z = neighbour.BELOW;
                 }
                 else
                 { 
-                    connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z - HalfHeight, Map[x, z].worldPos.z + RoomHeight);
+                    connectionPoint.z = UnityEngine.Random.Range(Map[x, z].worldPos.z - HalfHeight, Map[x, z].worldPos.z + HalfHeight);
+                    otherPoint.z = connectionPoint.z;
+                    n1_Z = neighbour.SAME_Z;
+                    n2_Z = neighbour.SAME_Z;
                 }
 
-                pointToSend p1 = new pointToSend() { c = Color.red, v = connectionPoint }; //Correct
-                pointToSend p2 = new pointToSend() { c = Color.blue, v = connectionPoint };
+                pointToSend p1 = new pointToSend() { c = Color.red, v = connectionPoint, n_X = n1_X, n_Z = n1_Z };
+                pointToSend p2 = new pointToSend() { c = Color.blue, v = otherPoint, n_X = n2_X, n_Z = n2_Z};
                 //Tell Rooms to create passage to point specified
-                print("connecting " + Map[x, z].Room.name + " to " + Map[oX, oZ].Room.name);
-                print("their Origins are: " + Map[x, z].worldPos + " and " + Map[oX, oZ].worldPos);
-                print("Connecting at point: " + connectionPoint);
 
                 Map[x, z].Room.SendMessage("connectToPoint", p1);
                 Map[oX, oZ].Room.SendMessage("connectToPoint", p2);
-                print("\n");
             }
         }
     }
@@ -181,7 +204,7 @@ public class MapGeneration : MonoBehaviour
     {
         foreach (Map_Room room in Map)
         {
-            room.Room.SendMessage("debugShowRoomTiles");
+            //room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
         }
     }
@@ -258,6 +281,7 @@ public class MapGeneration : MonoBehaviour
     {
         public Color c;
         public Vector3 v;
+        public neighbour n_X, n_Z;
     }
 
     public void printVariables()

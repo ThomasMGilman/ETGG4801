@@ -1,13 +1,13 @@
-worldWidth 2
-worldHeight 2
+worldWidth 4
+worldHeight 4
 
 roomWidth 100
 roomHeight 100
 
-hallWidth 2
+hallWidth 3
 
 squareSize 1
-borderSize 1
+borderSize 3
 
 smoothTimes 5
 
