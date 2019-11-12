@@ -136,6 +136,8 @@ public class MapGeneration : MonoBehaviour
 
     private void updateConnections(ref Map_Room room, (int,int) newConnection)
     {
+        room.connectionPath.Add(Map[newConnection.Item1, newConnection.Item2]);
+        Map[newConnection.Item1, newConnection.Item2].connectionPath.Add(room);
         foreach ((int, int) coord in room.connections)
         {
             if(coord != (room.mapIndex_X,room.mapIndex_Z))
@@ -199,6 +201,18 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
+    //private void travelPath(ref Map_Room lastRoomVisited, out int pathLength, out (int,int) furthestRoomCoords)
+    //{
+
+    //}
+
+    private void traverseLongestPath()
+    {
+        Map_Room mainRoom = Map[0, 0]; //Get main Room
+        Map_Room lastRoomVisited = mainRoom;
+
+    }
+
     private void generateMeshes()
     {
         foreach (Map_Room room in Map)
@@ -228,6 +242,7 @@ public class MapGeneration : MonoBehaviour
         return new Map_Room() { Room = newRoom,
                                 mapIndex_X = x, mapIndex_Z = z,
                                 connections = new HashSet<(int, int)>(),
+                                connectionPath = new List<Map_Room>(),
                                 unConnectedNeighbours = new List<(int, int)>(),
                                 Generated = generated,
                                 ReadyToGenMesh = false,
@@ -256,6 +271,7 @@ public class MapGeneration : MonoBehaviour
         public GameObject Room;
         public int mapIndex_X, mapIndex_Z;
         public HashSet<(int, int)> connections;
+        public List<Map_Room> connectionPath;
         public List<(int, int)> unConnectedNeighbours;
         public Vector3 worldPos;
         public bool Generated;
@@ -284,6 +300,7 @@ public class MapGeneration : MonoBehaviour
         if (roomProcessCount == numRooms)
         {
             connectRooms();
+            traverseLongestPath();
             generateMeshes();
         }
     }
@@ -327,12 +344,12 @@ public class MapGeneration : MonoBehaviour
         string[] lines = settings.text.Split('\n');
         foreach (string line in lines)
             line.Trim();
-        if(!(lines.Length > 1))
+        if (!(lines.Length > 1))
         {
             print("Settings File contains ZERO settings!!!");
             return;
         }
-        for(int i = 0; i < lines.Length; i++)
+        for (int i = 0; i < lines.Length; i++)
         {
             if (!(lines[i].Length > 1) || lines[i].StartsWith("#"))
                 continue;
@@ -398,4 +415,41 @@ public class MapGeneration : MonoBehaviour
             }
         }
     }
+
+    /*delegate void TreeVisitor<RoomTree>(Map_Room room);
+
+    class RoomTree
+    {
+        private Map_Room NodeRoom;
+        private LinkedList<RoomTree> children;
+
+        public RoomTree(Map_Room NodeRoom)
+        {
+            this.NodeRoom = NodeRoom;
+            this.children = new LinkedList<RoomTree>();
+        }
+
+        public void AddChild(Map_Room roomToAdd)
+        {
+            this.children.AddFirst(new RoomTree(roomToAdd));
+        }
+
+        public RoomTree getChild(int i)
+        {
+            foreach(RoomTree r in children)
+            {
+                if (--i == 0)
+                    return r;
+            }
+            return null;
+        }
+
+        public void Traverse(RoomTree node, TreeVisitor<RoomTree> visitor)
+        {
+            visitor(node.NodeRoom);
+            foreach (RoomTree child in node.children)
+                Traverse(child, visitor);
+        }
+    }*/
+
 }
