@@ -37,24 +37,27 @@ public class RoomsGeneration : MapGeneration
         return Math.Sqrt(px + py + pz);
     }
 
+    public double getDistance(in (int,int) a, in (int,int) b)
+    {
+        double px = Math.Pow((a.Item1 - b.Item1), 2);
+        double py = Math.Pow((a.Item2 - b.Item2), 2);
+        return Math.Sqrt(px + py);
+    }
+
     /// <summary>
     /// Create Passage From closest Tile to the point
     /// </summary>
     /// <param name="point"></param>
-    public void connectToPoint(in pointToSend pointPack)
+    public void connectToPoint(in (int,int) point)
     {
-        Vector3 point = pointPack.v; //Debug.DrawLine(point, point + new Vector3(0, 50, 0), Color.green, 5000);
-        Color drawColor = pointPack.c;
-        neighbour nDir_X = pointPack.n_X, nDir_Z = pointPack.n_Z;
-
-        Coordinate pointCoord = new Coordinate(RoomWidth - 1, RoomHeight - 1);
+        Coordinate pointCoord = new Coordinate(point.Item1, point.Item2);
         Coordinate closestRoomTile = pointCoord;
         float closestRoomDistance = Mathf.Infinity;
         Parallel.ForEach(Rooms, r =>
         {
             Parallel.ForEach(r.edgeTiles, tile =>
             {
-                float distance = (float)getDistance(toWorldPos(tile), point);
+                float distance = (float)getDistance((tile.tileX, tile.tileY), (pointCoord.tileX, pointCoord.tileY));
                 lock (sharedLock)
                 {
                     if (distance < closestRoomDistance)
@@ -65,47 +68,8 @@ public class RoomsGeneration : MapGeneration
                 }
             });
         });
-        Coordinate tileToDrawTo = new Coordinate(closestRoomTile.tileX, closestRoomTile.tileY);
-        Coordinate tileToDrawToTwo = tileToDrawTo;
-        switch (nDir_X)
-        {
-            case (neighbour.LEFT):
-                tileToDrawTo.tileX = 0;
-                tileToDrawToTwo.tileX = 0;
-                break;
-            case (neighbour.RIGHT):
-                tileToDrawTo.tileX = RoomWidth - 1;
-                tileToDrawToTwo.tileX = RoomWidth - 1;
-                break;
-            default:
-                if (tileToDrawTo.tileX > HallWidth)
-                    tileToDrawTo.tileX -= HallWidth;
-                if (tileToDrawToTwo.tileX < RoomWidth - HallWidth)
-                    tileToDrawToTwo.tileX += HallWidth;
-                break;
-        }
-        switch(nDir_Z)
-        {
-            case (neighbour.ABOVE):
-                tileToDrawTo.tileY = RoomHeight - 1;
-                tileToDrawToTwo.tileY = RoomHeight - 1;
-                break;
-            case (neighbour.BELOW):
-                tileToDrawTo.tileY = 0;
-                tileToDrawToTwo.tileY = 0;
-                break;
-            default:
-                if (tileToDrawTo.tileY > HallWidth)
-                    tileToDrawTo.tileY -= HallWidth;
-                if (tileToDrawToTwo.tileY < RoomWidth - HallWidth)
-                    tileToDrawToTwo.tileY += HallWidth;
-                break;
-        }
 
-
-        createPassage(closestRoomTile, tileToDrawTo, null,null, false);
-        createPassage(closestRoomTile, tileToDrawToTwo, null, null, false);
-        //Debug.DrawLine(toWorldPos(closestRoomTile), point, drawColor, 5000);
+        createPassage(closestRoomTile, pointCoord, null, null, false);
     }
 
     /// <summary>

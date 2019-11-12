@@ -4,7 +4,8 @@ worldHeight 4
 roomWidth 100
 roomHeight 100
 
-hallWidth 3
+hallWidth 2
+roomConnectionWidth 4
 
 squareSize 1
 borderSize 3
@@ -17,4 +18,4 @@ roomThresholdSize 25
 seed Random
 useRandSeed true
 
-randFillPercent 40
+randFillPercent 50

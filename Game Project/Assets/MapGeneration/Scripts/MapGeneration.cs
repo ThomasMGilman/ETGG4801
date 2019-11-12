@@ -13,10 +13,11 @@ public class MapGeneration : MonoBehaviour
     public static int RoomWidth = 100, RoomHeight = 100;            //dimensions of Room space
     public static float HalfWidth, HalfHeight;
 
-    public static int HallWidth = 1;
-    public static int SquareSize = 1;
+    public static int HallWidth = 1;                                //Room passage hallwayWidth
+    public static int roomConnectionWidth = 1;                      //HallwayBetween MapRoomsWidth
+    public static int SquareSize = 1;                               //size of each tile
     public static float halfSquareSize = .5f;
-    public static int BorderSize = 1;
+    public static int BorderSize = 1;                               //Mesh Border size, surrounding rooms
     public static int SmoothTimes = 5;                              //Times to smooth the map out
 
     public static int WallThresholdSize = 50;
@@ -73,65 +74,44 @@ public class MapGeneration : MonoBehaviour
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    private (pointToSend, pointToSend) getPointPackage(Map_Room a, Map_Room b)
+    private ((int,int), (int,int)) getPointPackage(Map_Room a, Map_Room b)
     {
         //SetPoint between Rooms to create a passage to
-        Vector3 connectionPoint = new Vector3(0, 0, 0);
-        Vector3 otherPoint = new Vector3(0, 0, 0);
-        neighbour n1_X, n2_X, n1_Z, n2_Z;
+        (int, int) connectionPoint = (0,0);
+        (int, int) otherPoint = (0,0);
         //Set point X Pos
         if (b.mapIndex_X < a.mapIndex_X)
         {
-            connectionPoint.x = a.worldPos.x - HalfWidth;
-            n1_X = MapGeneration.neighbour.LEFT;
-
-            otherPoint.x = b.worldPos.x + HalfWidth;
-            n2_X = MapGeneration.neighbour.RIGHT;
+            connectionPoint.Item1 = 0;
+            otherPoint.Item1 = RoomWidth - 1;
         }
         else if (b.mapIndex_X > a.mapIndex_X)
         {
-            connectionPoint.x = a.worldPos.x + HalfWidth;
-            n1_X = MapGeneration.neighbour.RIGHT;
-
-            otherPoint.x = b.worldPos.z - HalfWidth;
-            n2_X = MapGeneration.neighbour.LEFT;
+            connectionPoint.Item1 = RoomWidth - 1;
+            otherPoint.Item1 = 0;
         }
         else
         {
-            connectionPoint.x = UnityEngine.Random.Range(a.worldPos.x - HalfWidth, a.worldPos.x + HalfWidth);
-            otherPoint.x = connectionPoint.x;
-            n1_X = MapGeneration.neighbour.SAME_X;
-            n2_X = MapGeneration.neighbour.SAME_Z;
-
+            connectionPoint.Item1 = UnityEngine.Random.Range(0, RoomWidth - roomConnectionWidth - 1);
+            otherPoint.Item1 = connectionPoint.Item1;
         }
         //Set point Z Pos
         if (b.mapIndex_Z < a.mapIndex_Z)
         {
-            connectionPoint.z = a.worldPos.z - HalfHeight;
-            n1_Z = MapGeneration.neighbour.BELOW;
-
-            otherPoint.z = b.worldPos.z + HalfHeight;
-            n2_Z = MapGeneration.neighbour.ABOVE;
+            connectionPoint.Item2 = 0;
+            otherPoint.Item2 = RoomHeight - 1;
         }
         else if (b.mapIndex_Z > a.mapIndex_Z)
         {
-            connectionPoint.z = a.worldPos.z + HalfHeight;
-            n1_Z = MapGeneration.neighbour.ABOVE;
-
-            otherPoint.z = b.worldPos.z - HalfHeight;
-            n2_Z = MapGeneration.neighbour.BELOW;
+            connectionPoint.Item2 = RoomHeight - 1;
+            otherPoint.Item2 = 0;
         }
         else
         {
-            connectionPoint.z = UnityEngine.Random.Range(a.worldPos.z - HalfHeight, a.worldPos.z + HalfHeight);
-            otherPoint.z = connectionPoint.z;
-            n1_Z = MapGeneration.neighbour.SAME_Z;
-            n2_Z = MapGeneration.neighbour.SAME_Z;
+            connectionPoint.Item2 = UnityEngine.Random.Range(0, RoomHeight - roomConnectionWidth - 1);
+            otherPoint.Item2 = connectionPoint.Item2;
         }
-
-        pointToSend p1 = new pointToSend() { c = Color.red, v = connectionPoint, n_X = n1_X, n_Z = n1_Z };
-        pointToSend p2 = new pointToSend() { c = Color.blue, v = otherPoint, n_X = n2_X, n_Z = n2_Z };
-        return (p1, p2);
+        return (connectionPoint, otherPoint);
     }
 
     private void updateConnections(ref Map_Room room, (int,int) newConnection)
@@ -168,9 +148,7 @@ public class MapGeneration : MonoBehaviour
         System.Random rand = new System.Random();
 
         foreach (Map_Room room in Map)
-        {
             notConnected.Add(room);
-        }
         /////////////////////////////////////////////////////////////////////////////////////////////////// While Rooms not Connected
         while(notConnected.Count > 0)
         {
@@ -194,7 +172,7 @@ public class MapGeneration : MonoBehaviour
                 updateConnections(ref Map[oX, oZ], (x, z));
 
                 //Tell Rooms to create passage to point specified
-                (pointToSend, pointToSend) pPack = getPointPackage(Map[x, z], Map[oX, oZ]);
+                ((int,int), (int,int)) pPack = getPointPackage(Map[x, z], Map[oX, oZ]);
                 Map[x, z].Room.SendMessage("connectToPoint", pPack.Item1);
                 Map[oX, oZ].Room.SendMessage("connectToPoint", pPack.Item2);
             }
@@ -217,7 +195,7 @@ public class MapGeneration : MonoBehaviour
     {
         foreach (Map_Room room in Map)
         {
-            //room.Room.SendMessage("debugShowRoomTiles");
+            room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
         }
     }
@@ -305,13 +283,6 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
-    public struct pointToSend
-    {
-        public Color c;
-        public Vector3 v;
-        public neighbour n_X, n_Z;
-    }
-
     public void printVariables()
     {
         print("WorldWidth/Height: [" + WorldWidth + ", " + WorldHeight + "]" +
@@ -374,6 +345,9 @@ public class MapGeneration : MonoBehaviour
                         break;
                     case ("hallwidth"):
                         HallWidth = Int32.Parse(line[1].Trim());
+                        break;
+                    case ("roomconnectionwidth"):
+                        roomConnectionWidth = Int32.Parse(line[1].Trim());
                         break;
 
                     case ("squaresize"):
