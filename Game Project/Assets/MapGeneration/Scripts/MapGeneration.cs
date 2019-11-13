@@ -74,6 +74,20 @@ public class MapGeneration : MonoBehaviour
                 createRoom(x, z, new Vector3(xPos, 15, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
             }
         }
+
+        Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
+        Vector3 planePosition = scaleVec + this.transform.position;
+        planePosition.y = 10f;
+        floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+        floor.transform.localScale = scaleVec;
+
+        //scaleVec.y = -1;
+        //planePosition.y = 15f;
+        //roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
+        //roof.transform.localScale = scaleVec;
+        //planePosition.y += 1f;
+        //floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+        //floor2.transform.localScale = scaleVec;
     }
 
     /// <summary>
@@ -295,19 +309,7 @@ public class MapGeneration : MonoBehaviour
         if(roomProcessCount == numRooms + 2) //FinaleCheck
         {
             generateMeshes();
-            Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
-            Vector3 planePosition = scaleVec  + this.transform.position;
-            planePosition.y = 10f;
-            floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
-            floor.transform.localScale = scaleVec;
-
-            scaleVec.y = -1;
-            planePosition.y = 15f;
-            roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
-            roof.transform.localScale = scaleVec;
-            planePosition.y += 1f;
-            floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
-            floor2.transform.localScale = scaleVec;
+            
         }
     }
 
