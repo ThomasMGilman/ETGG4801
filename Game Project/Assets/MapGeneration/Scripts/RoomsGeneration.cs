@@ -8,7 +8,7 @@ public class RoomsGeneration : MapGeneration
     private int[,] TileMap;
     private int[,] BorderMap;
     private int borderWidth, borderHeight;
-    private List<Room> Rooms;    
+    private List<Room> Rooms;
     public Vector3 worldPos;
     public Coordinate worldTile;
     object sharedLock;
@@ -85,9 +85,10 @@ public class RoomsGeneration : MapGeneration
                 if (x >= BorderSize && x < RoomWidth + BorderSize && y >= BorderSize && y < RoomHeight + BorderSize)
                     BorderMap[x, y] = TileMap[x - BorderSize, y - BorderSize];
                 //else
-                    //BorderMap[x, y] = 1;
+                //   BorderMap[x, y] = 1;
             }
         }
+        
         MeshGenerator meshGen = GetComponent<MeshGenerator>();
         meshGen.GenerateMesh(BorderMap, SquareSize);
     }
@@ -99,7 +100,6 @@ public class RoomsGeneration : MapGeneration
         for (int i = 0; i < SmoothTimes; i++)
             SmoothMap();
         ProcessMap();
-
         //CreateBorderLayout for MeshGeneration
         borderWidth = RoomWidth + BorderSize * 2;
         borderHeight = RoomHeight + BorderSize * 2;
@@ -591,7 +591,7 @@ public class RoomsGeneration : MapGeneration
     {
         Coordinate randTileInRoom = getRandomRoomTile();
         Vector3 tileLocation = toWorldPos(randTileInRoom);                                                  //Convert Tiles location to worldPosition
-        tileLocation.y -= Goal_prefab.transform.localScale.y/2 + 5;                                         //OffsetGoalObject off the ground by its height
+        tileLocation.y = 11f;                                                                               //OffsetGoalObject off the ground by its height
         tileLocation.x += 15; tileLocation.z += 15;
         drawCircle(randTileInRoom, 6);
         Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);                             //Create Goal object at location;
@@ -603,7 +603,7 @@ public class RoomsGeneration : MapGeneration
         Coordinate randTileInRoom = getRandomRoomTile(0);
         Vector3 tileLocation = toWorldPos(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         tileLocation.x += 15; tileLocation.z += 15;
-        tileLocation.y -= Spawn_prefab.transform.localScale.y/2 + 5;                                        //OffsetGoalObject off the ground by its height
+        tileLocation.y = 10f;                                                                               //OffsetGoalObject off the ground by its height
         drawCircle(randTileInRoom, 6);
         Instantiate(Spawn_prefab, tileLocation, Spawn_prefab.transform.rotation);                           //Create Goal object at location;
         this.transform.parent.SendMessage("roomFinished");

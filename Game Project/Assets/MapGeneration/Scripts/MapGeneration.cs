@@ -9,6 +9,8 @@ public class MapGeneration : MonoBehaviour
     public GameObject Room_prefab;
     public GameObject Spawn_prefab;
     public GameObject Goal_prefab;
+    public GameObject tmpFloor_prefab;
+    public GameObject tmpRoof_prefab;
     public string mapSettingsName;
 
     public static int WorldWidth = 5, WorldHeight = 5;              //dimensions of Wold Space
@@ -39,6 +41,8 @@ public class MapGeneration : MonoBehaviour
     private static int endGoalThreshold = 0;
 
     private Map_Room[,] Map;
+    private GameObject floor, floor2;
+    private GameObject roof;
 
     public enum neighbour{ LEFT, RIGHT, SAME_X, ABOVE, BELOW, SAME_Z };
     // Start is called before the first frame update
@@ -67,7 +71,7 @@ public class MapGeneration : MonoBehaviour
             for(int z = 0; z < WorldHeight; z++)
             {
                 zPos = getRoomPosZ(z);
-                createRoom(x, z, new Vector3(xPos, 0, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
+                createRoom(x, z, new Vector3(xPos, 15, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
             }
         }
     }
@@ -291,6 +295,19 @@ public class MapGeneration : MonoBehaviour
         if(roomProcessCount == numRooms + 2) //FinaleCheck
         {
             generateMeshes();
+            Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
+            Vector3 planePosition = scaleVec  + this.transform.position;
+            planePosition.y = 10f;
+            floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+            floor.transform.localScale = scaleVec;
+
+            scaleVec.y = -1;
+            planePosition.y = 15f;
+            roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
+            roof.transform.localScale = scaleVec;
+            planePosition.y += 1f;
+            floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+            floor2.transform.localScale = scaleVec;
         }
     }
 
