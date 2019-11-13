@@ -44,6 +44,7 @@ public class RoomsGeneration : MapGeneration
         return Math.Sqrt(px + py);
     }
 
+
     /// <summary>
     /// Create Passage From closest Tile to the point
     /// </summary>
@@ -260,8 +261,9 @@ public class RoomsGeneration : MapGeneration
             connectClosestRooms(ref regionRooms, true);
     }
 
-    private void createPassage(in Coordinate tileA, in Coordinate tileB, in Room roomA = null, in Room roomB = null, bool showPassageDraw = false)
+    private void createPassage(in Coordinate tileA, in Coordinate tileB, in Room roomA = null, in Room roomB = null, bool showPassageDraw = false, int hallRadius = -1)
     {
+        if (hallRadius <= 0) hallRadius = HallWidth;
         if(roomA != null && roomB != null)
             Room.connectRooms(roomA, roomB);
 
@@ -269,7 +271,7 @@ public class RoomsGeneration : MapGeneration
             Debug.DrawLine(toWorldPos(tileA), toWorldPos(tileB), Color.magenta, 100);
 
         List<Coordinate> line = getLine(in tileA, in tileB);
-        Parallel.ForEach(line, c => drawCircle(c, HallWidth));
+        Parallel.ForEach(line, c => drawCircle(c, hallRadius));
     }
 
     private void drawCircle(Coordinate center, int radius)
@@ -573,6 +575,38 @@ public class RoomsGeneration : MapGeneration
         {
             return otherRoom.roomSize.CompareTo(roomSize);
         }
+    }
+
+    private Coordinate getRandomRoomTile(int roomNum = -1)
+    {
+        Room randRoom;
+        if(roomNum >= 0 && roomNum < Rooms.Count)
+            randRoom = Rooms[roomNum];                                                          //GrabSpecifiedRoom
+        else
+            randRoom = Rooms[UnityEngine.Random.Range(0, Rooms.Count - 1)];                     //Grab Random Room to place goal at
+        return randRoom.tiles[UnityEngine.Random.Range(0, randRoom.tiles.Count - 1)];           //Get Tile Location
+    }
+
+    private void setGoal()
+    {
+        Coordinate randTileInRoom = getRandomRoomTile();
+        Vector3 tileLocation = toWorldPos(randTileInRoom);                                                  //Convert Tiles location to worldPosition
+        tileLocation.y -= Goal_prefab.transform.localScale.y/2 + 5;                                         //OffsetGoalObject off the ground by its height
+        tileLocation.x += 15; tileLocation.z += 15;
+        drawCircle(randTileInRoom, 6);
+        Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);                             //Create Goal object at location;
+        this.transform.parent.SendMessage("roomFinished");
+    }
+
+    private void setSpawn()
+    {
+        Coordinate randTileInRoom = getRandomRoomTile(0);
+        Vector3 tileLocation = toWorldPos(randTileInRoom);                                                  //Convert Tiles location to worldPosition
+        tileLocation.x += 15; tileLocation.z += 15;
+        tileLocation.y -= Spawn_prefab.transform.localScale.y/2 + 5;                                        //OffsetGoalObject off the ground by its height
+        drawCircle(randTileInRoom, 6);
+        Instantiate(Spawn_prefab, tileLocation, Spawn_prefab.transform.rotation);                           //Create Goal object at location;
+        this.transform.parent.SendMessage("roomFinished");
     }
 
     private void debugPrintRoom()

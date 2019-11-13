@@ -6,7 +6,7 @@ public class MeshGenerator : MonoBehaviour
 {
     public int tileAmount = 10;
 
-    public float wallHeight = 5;  //Height of the walls
+    public float wallHeight = 15;  //Height of the walls
 
     public SquareGrid Square_Grid;
     public MeshFilter Wall_MeshFilter;

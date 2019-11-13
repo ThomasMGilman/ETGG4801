@@ -45,18 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Room_prefab: {fileID: 8367393367119542583, guid: 60a29f2000b0c504293fee0794f28fa5,
     type: 3}
-  WorldWidth: 1
-  WorldHeight: 1
-  RoomWidth: 225
-  RoomHeight: 225
-  HalfWidth: 0
-  HalfHeight: 0
-  HallWidth: 5
-  SquareSize: 1
-  BorderSize: 2
-  SmoothTimes: 5
-  WallThresholdSize: 50
-  RoomThresholdSize: 50
-  Seed: Random
-  UseRandSeed: 1
-  RandFillPercent: 40
+  Spawn_prefab: {fileID: 1021414939612864875, guid: 718e7451756bae449a2a2d56e8464bbf,
+    type: 3}
+  Goal_prefab: {fileID: 5650949798902588372, guid: 54e2aa324d2f580468be0a0e7a74557d,
+    type: 3}
+  mapSettingsName: 

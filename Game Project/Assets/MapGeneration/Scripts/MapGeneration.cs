@@ -7,6 +7,8 @@ using System;
 public class MapGeneration : MonoBehaviour
 {
     public GameObject Room_prefab;
+    public GameObject Spawn_prefab;
+    public GameObject Goal_prefab;
     public string mapSettingsName;
 
     public static int WorldWidth = 5, WorldHeight = 5;              //dimensions of Wold Space
@@ -33,6 +35,8 @@ public class MapGeneration : MonoBehaviour
 
     private static int roomProcessCount = 0;
     private static int numRooms = 0;
+
+    private static int endGoalThreshold = 0;
 
     private Map_Room[,] Map;
 
@@ -179,23 +183,11 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
-    //private void travelPath(ref Map_Room lastRoomVisited, out int pathLength, out (int,int) furthestRoomCoords)
-    //{
-
-    //}
-
-    private void traverseLongestPath()
-    {
-        Map_Room mainRoom = Map[0, 0]; //Get main Room
-        Map_Room lastRoomVisited = mainRoom;
-
-    }
-
     private void generateMeshes()
     {
         foreach (Map_Room room in Map)
         {
-            room.Room.SendMessage("debugShowRoomTiles");
+            //room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
         }
     }
@@ -272,13 +264,32 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
+    private void setEndGoalAndSpawn()
+    {
+        int randEndGoalX = UnityEngine.Random.Range(WorldWidth - endGoalThreshold, WorldWidth - 1);
+        if (randEndGoalX <= 0) randEndGoalX = WorldWidth - 1;
+
+        int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - endGoalThreshold, WorldHeight - 1);
+        if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
+        
+        Map[randEndGoalX, randEndGoalZ].Room.SendMessage("setGoal");
+        Map[0, 0].Room.SendMessage("setSpawn");
+    }
+
+    /// <summary>
+    /// After the last room has finished initializing the room layout, connect all the rooms together,
+    /// Find furthest room path and create goal, then finally generate the meshes.
+    /// </summary>
     private void roomFinished()
     {
         roomProcessCount++;
         if (roomProcessCount == numRooms)
         {
             connectRooms();
-            traverseLongestPath();
+            setEndGoalAndSpawn();
+        }
+        if(roomProcessCount == numRooms + 2) //FinaleCheck
+        {
             generateMeshes();
         }
     }
@@ -381,6 +392,13 @@ public class MapGeneration : MonoBehaviour
                         fillAmount = fillAmount > MaxFillPercent ? MaxFillPercent : fillAmount;
                         fillAmount = fillAmount < MinFillPercent ? MinFillPercent : fillAmount;
                         RandFillPercent = fillAmount;
+                        break;
+
+                    case ("endgoalthreshold"):
+                        endGoalThreshold = Int32.Parse(line[1].Trim());
+                        if (endGoalThreshold < 0) endGoalThreshold = 0;
+                        if (WorldHeight - endGoalThreshold < 1) endGoalThreshold = WorldHeight - 1;
+                        if (WorldWidth - endGoalThreshold < 1) endGoalThreshold = WorldWidth - 1;
                         break;
                     default:
                         print("\nSettingsException: " + line[0] + " doesnt exist as a valid setting!!\n\tLine: " + lines[i] + "\n\tLineLength: " + lines[i].Length + "\n");

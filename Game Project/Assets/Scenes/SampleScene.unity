@@ -377,6 +377,12 @@ PrefabInstance:
       propertyPath: mapSettingsName
       value: worldSettings
       objectReference: {fileID: 0}
+    - target: {fileID: 3335562426315804254, guid: b8ad4fc7c5549404490d5e518333b6b1,
+        type: 3}
+      propertyPath: Goal_prefab
+      value: 
+      objectReference: {fileID: 5650949798902588372, guid: 54e2aa324d2f580468be0a0e7a74557d,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8ad4fc7c5549404490d5e518333b6b1, type: 3}
 --- !u!1001 &9093579753417994164

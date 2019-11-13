@@ -142,6 +142,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Room_prefab: {fileID: 0}
+  Spawn_prefab: {fileID: 1021414939612864875, guid: 718e7451756bae449a2a2d56e8464bbf,
+    type: 3}
+  Goal_prefab: {fileID: 5650949798902588372, guid: 54e2aa324d2f580468be0a0e7a74557d,
+    type: 3}
   mapSettingsName: 
   worldPos: {x: 0, y: 0, z: 0}
 --- !u!1 &8367393367212254387
