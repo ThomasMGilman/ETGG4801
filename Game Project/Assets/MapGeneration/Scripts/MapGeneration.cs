@@ -294,7 +294,17 @@ public class MapGeneration : MonoBehaviour
         int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - 1 - endGoalThreshold, WorldHeight - 1);
         if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
         endGoalRoom = Map[randEndGoalX, randEndGoalZ];
-        endGoalRoom.Room.SendMessage("setGoal");
+        endGoalRoom.Room.SendMessage("setGoal", 1000);
+
+        foreach(Map_Room r in Map)
+        {
+            
+            if (!(r.mapIndex_X == 0 && r.mapIndex_Z == 0))
+            {
+                r.Room.SendMessage("setGoal", -1);
+            }
+        }
+
         startRoom = Map[0, 0];
         startRoom.Room.SendMessage("setSpawn");
     }

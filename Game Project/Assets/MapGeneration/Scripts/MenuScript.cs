@@ -15,7 +15,6 @@ public class MenuScript : MonoBehaviour
     public Button ContinueGameButton;
     public Button SettingsButton;
     public Button QuitButton;
-
     private Text scoreText;
 
     CursorLockMode wantMode;
@@ -144,4 +143,24 @@ public class MenuScript : MonoBehaviour
         Cursor.lockState = wantMode = state;
         Cursor.visible = (CursorLockMode.Locked != wantMode);
     }
+
+    /*
+    private void updateWorldWidth(int width)
+    {
+        for(int i = 0; i < settingsLines.Length; i++)
+        {
+            string[] line = settingsLines[i].Split();
+            if(line[0].Trim().ToLower() == "worldwidth")
+            {
+                line[1] = width.ToString();
+            }
+        }
+        
+    }
+
+    private void updateWorldHight(int hight)
+    {
+
+    }
+    */
 }

@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     bool gotGoal = false;
     float goalValue = 1000;
     float angleX, angleY;
-    float score = 1000;
+    float score = 500;
 
     Text scoreText;
 
@@ -154,14 +154,18 @@ public class Player : MonoBehaviour
             SetCursorState(CursorLockMode.Locked);
     }
 
+    private void updateScore(float val)
+    {
+        score += val;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         GameObject other = collision.gameObject;
-        if(other.tag == "Goal")
+        if(other.tag == "Goal" || other.name == "TempGoal(Clone)")
         {
-            score += goalValue;
+            other.SendMessage("getVal", this.gameObject);
             gotGoal = true;
-            Destroy(other);
         }
         if(other.tag == "Spawner" && gotGoal)
         {

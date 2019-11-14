@@ -11,7 +11,7 @@ public class SpawnerScript : MonoBehaviour
     void Start()
     {
         Vector3 spawnPosition = this.transform.position;
-        spawnPosition.y += playerPrefab.transform.localScale.y+2;
+        spawnPosition.y += playerPrefab.transform.localScale.y+1;
         player = Instantiate(playerPrefab, spawnPosition, playerPrefab.transform.rotation);
     }
 
