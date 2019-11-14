@@ -43,6 +43,7 @@ public class MapGeneration : MonoBehaviour
     private Map_Room[,] Map;
     private GameObject floor, floor2;
     private GameObject roof;
+    private Map_Room endGoalRoom, startRoom;
 
     public enum neighbour{ LEFT, RIGHT, SAME_X, ABOVE, BELOW, SAME_Z };
     // Start is called before the first frame update
@@ -81,13 +82,13 @@ public class MapGeneration : MonoBehaviour
         floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
         floor.transform.localScale = scaleVec;
 
-        //scaleVec.y = -1;
-        //planePosition.y = 15f;
-        //roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
-        //roof.transform.localScale = scaleVec;
-        //planePosition.y += 1f;
-        //floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
-        //floor2.transform.localScale = scaleVec;
+        scaleVec.y = -1;
+        planePosition.y = 15f;
+        roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
+        roof.transform.localScale = scaleVec;
+        planePosition.y += 1f;
+        floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+        floor2.transform.localScale = scaleVec;
     }
 
     /// <summary>
@@ -289,9 +290,10 @@ public class MapGeneration : MonoBehaviour
 
         int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - endGoalThreshold, WorldHeight - 1);
         if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
-        
-        Map[randEndGoalX, randEndGoalZ].Room.SendMessage("setGoal");
-        Map[0, 0].Room.SendMessage("setSpawn");
+        endGoalRoom = Map[randEndGoalX, randEndGoalZ];
+        endGoalRoom.Room.SendMessage("setGoal");
+        startRoom = Map[0, 0];
+        startRoom.Room.SendMessage("setSpawn");
     }
 
     /// <summary>

@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 8131560268140707575}
   - component: {fileID: 3567968444646726293}
   - component: {fileID: 4093286846938666011}
+  - component: {fileID: 5904247254938365284}
   m_Layer: 0
   m_Name: TempGoal
-  m_TagString: Untagged
+  m_TagString: Goal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -93,3 +94,15 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5904247254938365284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5650949798902588372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ed0d911a0875fe428bb04291e1625fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

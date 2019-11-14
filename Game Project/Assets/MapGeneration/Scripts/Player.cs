@@ -12,7 +12,9 @@ public class Player : MonoBehaviour
     Rigidbody Player_Rigidbody;
     Camera Player_Cam;
     Vector3 Player_Velocity, Player_Angle;
-    
+
+    private GameObject menuObject;
+    bool paused = false;
     float angleX, angleY;
 
     void Start()
@@ -22,6 +24,8 @@ public class Player : MonoBehaviour
         angleX = 0; angleY = 0;
 
         SetCursorState(CursorLockMode.Locked);          //Lock Mouse Movement
+
+        menuObject = GameObject.FindGameObjectWithTag("Menu");
     }
 
     private void checkInput()
@@ -31,6 +35,13 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
             SetCursorState(CursorLockMode.Locked);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SetCursorState(CursorLockMode.None);
+            menuObject.SendMessage("setPauseState", !paused);
+        }
+
     }
 
     /// <summary>
@@ -51,15 +62,22 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        checkInput();
-        Player_Velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized * 10;
-        Player_Angle = new Vector3(updateRotation(ref this.angleY, "MouseY", -1), updateRotation(ref this.angleX, "MouseX"), 0);
+        if(!paused)
+        {
+            checkInput();
+            Player_Velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized * 10;
+            Player_Angle = new Vector3(updateRotation(ref this.angleY, "MouseY", -1), updateRotation(ref this.angleX, "MouseX"), 0);
+        }
+        
     }
 
     void FixedUpdate()
     {
-        this.transform.rotation = Quaternion.Euler(Player_Angle);
-        this.transform.position += Player_Velocity != Vector3.zero ? Player_Cam.transform.TransformDirection(Player_Velocity * Time.fixedDeltaTime) : Vector3.zero;
+        if(!paused)
+        {
+            this.transform.rotation = Quaternion.Euler(Player_Angle);
+            this.transform.position += Player_Velocity != Vector3.zero ? Player_Cam.transform.TransformDirection(Player_Velocity * Time.fixedDeltaTime) : Vector3.zero;
+        }
     }
 
     /// <summary>
@@ -70,5 +88,12 @@ public class Player : MonoBehaviour
     {
         Cursor.lockState = wantMode = state;
         Cursor.visible = (CursorLockMode.Locked != wantMode);
+    }
+
+    private void setPauseState(bool state)
+    {
+        paused = state;
+        if(!paused)
+            SetCursorState(CursorLockMode.Locked);
     }
 }

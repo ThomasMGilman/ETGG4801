@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3335562426315804193
+--- !u!1 &6262521448476148783
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3335562426315804255}
-  - component: {fileID: 3335562426315804254}
+  - component: {fileID: 2167945410553466791}
+  - component: {fileID: 5265647847312665888}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3335562426315804255
+--- !u!4 &2167945410553466791
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3335562426315804193}
+  m_GameObject: {fileID: 6262521448476148783}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -10.903999, y: 22.850231, z: 27.456612}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -31,13 +31,13 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3335562426315804254
+--- !u!114 &5265647847312665888
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3335562426315804193}
+  m_GameObject: {fileID: 6262521448476148783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c621c154ebc9bb48a91bd3cb439de72, type: 3}
@@ -49,4 +49,8 @@ MonoBehaviour:
     type: 3}
   Goal_prefab: {fileID: 5650949798902588372, guid: 54e2aa324d2f580468be0a0e7a74557d,
     type: 3}
-  mapSettingsName: 
+  tmpFloor_prefab: {fileID: 9093579754749940997, guid: 9ae5f0f932d7cca42b5ac2d4b444504b,
+    type: 3}
+  tmpRoof_prefab: {fileID: 9101431338034840144, guid: a0b0d04ddb1b27745978121f3af73785,
+    type: 3}
+  mapSettingsName: worldSettings

@@ -13,6 +13,8 @@ public class RoomsGeneration : MapGeneration
     public Coordinate worldTile;
     object sharedLock;
 
+    private GameObject goalObj = null, startObj = null;
+
     // Start is called before the first frame update
     void Start()
     {
