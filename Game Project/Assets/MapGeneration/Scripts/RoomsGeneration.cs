@@ -597,10 +597,10 @@ public class RoomsGeneration : MapGeneration
 
     private Vector3 getObjPosition(Coordinate toUse)
     {
-        float xAmout = RoomWidth / 2 * SquareSize + this.transform.position.x;
-        float xPos = Mathf.InverseLerp(-xAmout, xAmout, toUse.tileX) * 10;
-        float zPos = Mathf.InverseLerp(-xAmout, xAmout, toUse.tileY) * 10;
-        return new Vector3(xPos, 0, zPos);
+        float xAmout = RoomWidth / 2 * SquareSize;
+        float xPos = Mathf.InverseLerp(-xAmout, xAmout, toUse.tileX) * 10 + BorderSize;
+        float zPos = Mathf.InverseLerp(-xAmout, xAmout, toUse.tileY) * 10 + BorderSize;
+        return new Vector3(xPos, 0, zPos) + toWorldPos(toUse);
     }
 
     private void setGoal()
@@ -609,8 +609,8 @@ public class RoomsGeneration : MapGeneration
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 11f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 4);
-        Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);//, this.transform);            //Create Goal object at location;
+        drawCircle(randTileInRoom, 2);
+        Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);//, this.transform);             //Create Goal object at location;
         
         this.transform.parent.SendMessage("roomFinished");
     }
@@ -621,7 +621,7 @@ public class RoomsGeneration : MapGeneration
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 10f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 4);
+        drawCircle(randTileInRoom, 2);
         Instantiate(Spawn_prefab, tileLocation, Spawn_prefab.transform.rotation);//, this.transform);           //Create Goal object at location;
         this.transform.parent.SendMessage("roomFinished");
     }

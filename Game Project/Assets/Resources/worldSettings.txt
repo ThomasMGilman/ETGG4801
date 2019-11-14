@@ -1,5 +1,5 @@
-worldWidth 2
-worldHeight 2
+worldWidth 4
+worldHeight 4
 
 roomWidth 50
 roomHeight 50
@@ -20,4 +20,4 @@ useRandSeed true
 
 randFillPercent 50
 
-endGoalThreshold 4
+endGoalThreshold 0

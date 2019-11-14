@@ -59,7 +59,7 @@ public class MenuScript : MonoBehaviour
 
         }
         else
-            SceneManager.LoadScene(1, LoadSceneMode.Single);
+            SceneManager.LoadScene(0, LoadSceneMode.Single);
         ContinueGameButton.interactable = true;
         menuPanel.SetActive(paused);
     }

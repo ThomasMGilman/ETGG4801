@@ -24,8 +24,20 @@ public class Player : MonoBehaviour
 
     Text scoreText;
 
+    public GameObject trailPrefab;
+    uint maxTrail = 20;
+    bool useMaxTrail = false;
+    float travelDistancePerTrailMarker = 300;
+    private float steps = 0;
+    private Queue<GameObject> trail;
+
     void Start()
     {
+        trail = new Queue<GameObject>();
+        steps = 0;
+
+        if (useMaxTrail) maxTrail = 2^(sizeof(uint)*8) - 1;
+
         this.Player_Rigidbody = GetComponent<Rigidbody>();
         this.Player_Cam = this.transform.GetChild(0).GetComponent<Camera>();
         angleX = 0; angleY = 0;
@@ -56,7 +68,8 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SetCursorState(CursorLockMode.None);
-            menuObject.SendMessage("setPauseState", !paused);
+            menuObject.SetActive(true);
+            GameObject.FindGameObjectWithTag("Menu").SendMessage("setPauseState", !paused);
         }
 
     }
@@ -90,8 +103,10 @@ public class Player : MonoBehaviour
                 //GameOver
             }
             scoreText.text = score.ToString();
+
+            steps += Player_Velocity.x + Player_Velocity.z;
+            leaveTrail();
         }
-        
     }
 
     void FixedUpdate()
@@ -103,6 +118,22 @@ public class Player : MonoBehaviour
             this.transform.position += newPosOffset;
             MiniMap_Cam.transform.position += newPosOffset;
 
+        }
+    }
+
+    /// <summary>
+    /// Leave a trail behind the player
+    /// </summary>
+    private void leaveTrail()
+    {
+        if(steps >= travelDistancePerTrailMarker && maxTrail > 0)
+        {
+            steps = 0;
+
+            if (trail.Count >= maxTrail - 1)
+                Destroy(trail.Dequeue());
+
+            trail.Enqueue(Instantiate(trailPrefab, this.transform.position, trailPrefab.transform.rotation));
         }
     }
 

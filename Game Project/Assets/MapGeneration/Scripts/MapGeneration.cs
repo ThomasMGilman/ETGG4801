@@ -49,6 +49,9 @@ public class MapGeneration : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        roomProcessCount = 0;
+        endGoalThreshold = 0;
+
         importMapSettings(mapSettingsName);
         numRooms = WorldWidth * WorldHeight;
         Map = new Map_Room[WorldWidth, WorldHeight];
@@ -206,7 +209,7 @@ public class MapGeneration : MonoBehaviour
     {
         foreach (Map_Room room in Map)
         {
-            room.Room.SendMessage("debugShowRoomTiles");
+            //room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
         }
     }
@@ -285,10 +288,10 @@ public class MapGeneration : MonoBehaviour
 
     private void setEndGoalAndSpawn()
     {
-        int randEndGoalX = UnityEngine.Random.Range(WorldWidth - endGoalThreshold, WorldWidth - 1);
+        int randEndGoalX = UnityEngine.Random.Range(WorldWidth - 1 - endGoalThreshold, WorldWidth - 1);
         if (randEndGoalX <= 0) randEndGoalX = WorldWidth - 1;
 
-        int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - endGoalThreshold, WorldHeight - 1);
+        int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - 1 - endGoalThreshold, WorldHeight - 1);
         if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
         endGoalRoom = Map[randEndGoalX, randEndGoalZ];
         endGoalRoom.Room.SendMessage("setGoal");
