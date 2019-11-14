@@ -8,12 +8,17 @@ public class MenuScript : MonoBehaviour
 {
     public GameObject GamePrefab;
     public GameObject menuPanel;
+    public GameObject winPanel;
+    public GameObject losePanel;
     public RawImage GameName;
     public Button NewGameButton;
     public Button ContinueGameButton;
     public Button SettingsButton;
     public Button QuitButton;
 
+    private Text scoreText;
+
+    CursorLockMode wantMode;
 
     private GameObject GameState, menuObject, overLay;
 
@@ -41,17 +46,38 @@ public class MenuScript : MonoBehaviour
         overLay = GameObject.Find("Canvas").transform.GetChild(0).gameObject;
         overLay.SetActive(false);
         menuObject.SetActive(true);
+
+        scoreText = winPanel.transform.GetChild(2).gameObject.GetComponent<Text>(); //ScoreText
+        winPanel.SetActive(false);
+
+        losePanel.SetActive(false);
+    }
+
+    private bool keyInput()
+    {
+        return (Input.GetKeyDown(KeyCode.Escape) ||
+            Input.GetKeyDown(KeyCode.E) ||
+            Input.GetKeyDown(KeyCode.Return) ||
+            Input.GetKeyDown(KeyCode.Mouse0)) == true;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if(winPanel.activeSelf && keyInput())
+        {
+            winPanel.SetActive(false);
+            menuPanel.SetActive(true);
+        }
+        else if(losePanel.activeSelf && keyInput())
+        {
+            losePanel.SetActive(false);
+            menuPanel.SetActive(true);
+        }
     }
 
     public void startGame()
     {
-        print("NewGame");
         if (firstStart)
         {
             GameState = Instantiate(GamePrefab, Vector3.zero, GamePrefab.transform.rotation);
@@ -80,7 +106,6 @@ public class MenuScript : MonoBehaviour
 
     public void quitGame()
     {
-        print("Quiting");
         Application.Quit();
     }
 
@@ -89,6 +114,34 @@ public class MenuScript : MonoBehaviour
         paused = state;
         menuPanel.SetActive(paused);
         GameObject.FindGameObjectWithTag("Player").SendMessage("setPauseState", paused);
-        GameObject.FindGameObjectWithTag("Goal").SendMessage("setPauseState", paused);
+        GameObject Goal = GameObject.FindGameObjectWithTag("Goal");
+        if(Goal != null) Goal.SendMessage("setPauseState", paused);
+    }
+
+    private void winScreen(float score)
+    {
+        setPauseState(true);
+        winPanel.SetActive(true);
+        scoreText.text = score.ToString();
+        ContinueGameButton.interactable = false;
+        SetCursorState(CursorLockMode.None);
+    }
+
+    private void loseScreen()
+    {
+        setPauseState(true);
+        losePanel.SetActive(true);
+        ContinueGameButton.interactable = false;
+        SetCursorState(CursorLockMode.None);
+    }
+
+    /// <summary>
+    /// Sets the Cursor State While inGame
+    /// </summary>
+    /// <param name="state"></param>
+    private void SetCursorState(CursorLockMode state)
+    {
+        Cursor.lockState = wantMode = state;
+        Cursor.visible = (CursorLockMode.Locked != wantMode);
     }
 }

@@ -20,13 +20,13 @@ public class Player : MonoBehaviour
     bool gotGoal = false;
     float goalValue = 1000;
     float angleX, angleY;
-    float score;
+    float score = 1000;
 
     Text scoreText;
 
     public GameObject trailPrefab;
-    uint maxTrail = 20;
-    bool useMaxTrail = false;
+    uint maxTrail = 400000000;
+    bool useMaxTrail = true;
     float travelDistancePerTrailMarker = 300;
     private float steps = 0;
     private Queue<GameObject> trail;
@@ -41,7 +41,6 @@ public class Player : MonoBehaviour
         this.Player_Rigidbody = GetComponent<Rigidbody>();
         this.Player_Cam = this.transform.GetChild(0).GetComponent<Camera>();
         angleX = 0; angleY = 0;
-        score = 1000;
 
         SetCursorState(CursorLockMode.Locked);          //Lock Mouse Movement
 
@@ -100,12 +99,12 @@ public class Player : MonoBehaviour
             score -= 1 * Time.deltaTime;
             if(score <= 0)
             {
-                //GameOver
+                GameObject.FindGameObjectWithTag("Menu").SendMessage("loseScreen");
             }
             scoreText.text = score.ToString();
 
             steps += Player_Velocity.x + Player_Velocity.z;
-            leaveTrail();
+            //leaveTrail();
         }
     }
 
@@ -164,12 +163,9 @@ public class Player : MonoBehaviour
             gotGoal = true;
             Destroy(other);
         }
-        if(other.tag == "Spawner")
+        if(other.tag == "Spawner" && gotGoal)
         {
-            if(gotGoal)
-            {
-                //WinGAME!
-            }
+            GameObject.FindGameObjectWithTag("Menu").SendMessage("winScreen", score);
         }
     }
 }

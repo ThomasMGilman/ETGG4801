@@ -617,7 +617,7 @@ public class RoomsGeneration : MapGeneration
 
     private void setSpawn()
     {
-        Coordinate randTileInRoom = getRandomRoomTile(0);
+        Coordinate randTileInRoom = getRandomRoomTile();
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 10f;                                                                                   //OffsetGoalObject off the ground by its height
