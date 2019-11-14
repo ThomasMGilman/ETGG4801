@@ -79,15 +79,15 @@ public class MapGeneration : MonoBehaviour
         Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
         Vector3 planePosition = scaleVec + this.transform.position;
         planePosition.y = 10f;
-        floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+        floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
         floor.transform.localScale = scaleVec;
 
         scaleVec.y = -1;
         planePosition.y = 15f;
-        roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation);
+        roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation, this.transform);
         roof.transform.localScale = scaleVec;
         planePosition.y += 1f;
-        floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation);
+        floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
         floor2.transform.localScale = scaleVec;
     }
 
@@ -206,7 +206,7 @@ public class MapGeneration : MonoBehaviour
     {
         foreach (Map_Room room in Map)
         {
-            //room.Room.SendMessage("debugShowRoomTiles");
+            room.Room.SendMessage("debugShowRoomTiles");
             room.Room.SendMessage("generateRoomMesh");
         }
     }
@@ -311,7 +311,6 @@ public class MapGeneration : MonoBehaviour
         if(roomProcessCount == numRooms + 2) //FinaleCheck
         {
             generateMeshes();
-            
         }
     }
 
@@ -427,6 +426,15 @@ public class MapGeneration : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        for(int i = 0; i < this.transform.childCount; i++)
+        {
+            Destroy(this.transform.GetChild(i));
+        }
+        Destroy(this.gameObject);
     }
 
     /*delegate void TreeVisitor<RoomTree>(Map_Room room);

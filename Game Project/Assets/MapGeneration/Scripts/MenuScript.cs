@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
@@ -13,8 +14,8 @@ public class MenuScript : MonoBehaviour
     public Button SettingsButton;
     public Button QuitButton;
 
-    
-    private GameObject GameState;
+
+    private GameObject GameState, menuObject, overLay;
 
     private bool firstStart;
     private bool paused = false;
@@ -23,7 +24,7 @@ public class MenuScript : MonoBehaviour
     void Start()
     {
         NewGameButton.interactable = true;
-        NewGameButton.transform.localScale = NewGameButton.transform.localScale/2;
+        NewGameButton.transform.localScale = NewGameButton.transform.localScale / 2;
 
         ContinueGameButton.interactable = false;
         ContinueGameButton.transform.localScale = ContinueGameButton.transform.localScale / 2;
@@ -36,12 +37,16 @@ public class MenuScript : MonoBehaviour
 
         firstStart = true;
         paused = false;
+        menuObject = GameObject.Find("Canvas").transform.GetChild(1).gameObject;
+        overLay = GameObject.Find("Canvas").transform.GetChild(0).gameObject;
+        overLay.SetActive(false);
+        menuObject.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void startGame()
@@ -54,7 +59,7 @@ public class MenuScript : MonoBehaviour
 
         }
         else
-            GameState.SendMessage("Start");
+            SceneManager.LoadScene(1, LoadSceneMode.Single);
         ContinueGameButton.interactable = true;
         menuPanel.SetActive(paused);
     }
@@ -62,7 +67,6 @@ public class MenuScript : MonoBehaviour
     ///Tell Everyone to wake up and start playing again and hide the menu again
     public void continueGame()
     {
-        print("Continueing");
         paused = false;
         menuPanel.SetActive(paused);
         GameObject.FindGameObjectWithTag("Player").SendMessage("setPauseState", paused);

@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Menu
   - Goal
+  - Overlay
+  - Score
+  - Spawner
+  - mapCamera
   layers:
   - Default
   - TransparentFX
