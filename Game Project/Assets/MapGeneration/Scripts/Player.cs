@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
         trail = new Queue<GameObject>();
         steps = 0;
 
-        if (useMaxTrail) maxTrail = 2^(sizeof(uint)*8) - 1;
+        if (useMaxTrail) maxTrail = 2 ^ (sizeof(uint) * 8) - 1;
 
         this.Player_Rigidbody = GetComponent<Rigidbody>();
         this.Player_Cam = this.transform.GetChild(0).GetComponent<Camera>();
@@ -91,33 +91,40 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if(!paused)
+        if (!paused)
         {
             checkInput();
             Player_Velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized * 10;
             Player_Angle = new Vector3(updateRotation(ref this.angleY, "MouseY", -1), updateRotation(ref this.angleX, "MouseX"), 0);
             score -= 1 * Time.deltaTime;
-            if(score <= 0)
+            if (score <= 0)
             {
                 GameObject.FindGameObjectWithTag("Menu").SendMessage("loseScreen");
             }
             scoreText.text = score.ToString();
 
-            steps += Player_Velocity.x + Player_Velocity.z;
-            //leaveTrail();
+            steps += Mathf.Abs(Player_Velocity.x) + Mathf.Abs(Player_Velocity.z);
+            leaveTrail();
         }
     }
 
     void FixedUpdate()
     {
-        if(!paused)
+        if (!paused)
         {
+            if (Player_Angle.x >= 75) Player_Angle.x = 75; if (Player_Angle.x <= -75) Player_Angle.x = -75;
             this.transform.rotation = Quaternion.Euler(Player_Angle);
             Vector3 newPosOffset = Player_Velocity != Vector3.zero ? Player_Cam.transform.TransformDirection(Player_Velocity * Time.fixedDeltaTime) : Vector3.zero;
+            if (this.transform.position.y + newPosOffset.y < 10.5) newPosOffset.y = 0;
             this.transform.position += newPosOffset;
-            MiniMap_Cam.transform.position += newPosOffset;
+            updateCameraPosition();
 
         }
+    }
+
+    private void updateCameraPosition()
+    {
+        MiniMap_Cam.transform.position = new Vector3(this.transform.position.x, MiniMap_Cam.transform.position.y,  this.transform.position.z);
     }
 
     /// <summary>
@@ -131,8 +138,8 @@ public class Player : MonoBehaviour
 
             if (trail.Count >= maxTrail - 1)
                 Destroy(trail.Dequeue());
-
-            trail.Enqueue(Instantiate(trailPrefab, this.transform.position, trailPrefab.transform.rotation));
+            Vector3 crumPos = this.transform.position; crumPos.y = 10 + trailPrefab.transform.localScale.y;
+            trail.Enqueue(Instantiate(trailPrefab, crumPos, trailPrefab.transform.rotation));
         }
     }
 

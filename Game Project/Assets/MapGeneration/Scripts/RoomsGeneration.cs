@@ -8,6 +8,7 @@ public class RoomsGeneration : MapGeneration
     private int[,] TileMap;
     private int[,] BorderMap;
     private int borderWidth, borderHeight;
+    private int RandFillPercent;
     private List<Room> Rooms;
     public Vector3 worldPos;
     public Coordinate worldTile;
@@ -19,6 +20,12 @@ public class RoomsGeneration : MapGeneration
     // Start is called before the first frame update
     void Start()
     {
+        if (!UseRandFillPercent)
+        {
+            RandFillPercent = UnityEngine.Random.Range(MinFillPercent, MaxFillPercent);
+        }
+        else
+            RandFillPercent = FillPercent;
         worldPos = this.transform.position;
         worldTile = new Coordinate() { tileX = (int)worldPos.x, tileY = (int)worldPos.z };
         //Debug.DrawLine(worldPos, worldPos + new Vector3(0, 20, 0), Color.cyan, 5000);
@@ -608,14 +615,14 @@ public class RoomsGeneration : MapGeneration
     {
         Coordinate randTileInRoom = getRandomRoomTile();
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
-        Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
+        //Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 12.5f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 2);
+        drawCircle(randTileInRoom, 6);
         GameObject goal = Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);//, this.transform);             //Create Goal object at location;
         float score = val;
         if (val < 0)
         {
-            score = UnityEngine.Random.Range(100, 250);
+            score = UnityEngine.Random.Range(50, 150);
             goal.transform.localScale = goalScale;
         }
         goal.SendMessage("setValue", score);
@@ -626,9 +633,9 @@ public class RoomsGeneration : MapGeneration
     {
         Coordinate randTileInRoom = getRandomRoomTile();
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
-        Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
+        //Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 10f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 2);
+        drawCircle(randTileInRoom, 6);
         Instantiate(Spawn_prefab, tileLocation, Spawn_prefab.transform.rotation);//, this.transform);           //Create Goal object at location;
         this.transform.parent.SendMessage("roomFinished");
     }

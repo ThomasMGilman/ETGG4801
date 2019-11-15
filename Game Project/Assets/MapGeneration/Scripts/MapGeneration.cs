@@ -30,9 +30,9 @@ public class MapGeneration : MonoBehaviour
     public static string Seed = "Random";                           //When generating map using seed, uses Hash of string
     public static bool UseRandSeed = false;
 
-    public static int MaxFillPercent = 90;
-    public static int MinFillPercent = 10;
-    public static int RandFillPercent;
+    public static int MaxFillPercent = 52;
+    public static int MinFillPercent = 37;
+    public static int FillPercent;
     public static bool UseRandFillPercent = false;
 
     private static int roomProcessCount = 0;
@@ -301,7 +301,12 @@ public class MapGeneration : MonoBehaviour
             
             if (!(r.mapIndex_X == 0 && r.mapIndex_Z == 0))
             {
-                r.Room.SendMessage("setGoal", -1);
+                int randNumGoals = UnityEngine.Random.Range(2, 5);
+                while(randNumGoals > 0)
+                {
+                    r.Room.SendMessage("setGoal", -1);
+                    randNumGoals--;
+                }
             }
         }
 
@@ -424,7 +429,11 @@ public class MapGeneration : MonoBehaviour
                         int fillAmount = Int32.Parse(line[1].Trim());
                         fillAmount = fillAmount > MaxFillPercent ? MaxFillPercent : fillAmount;
                         fillAmount = fillAmount < MinFillPercent ? MinFillPercent : fillAmount;
-                        RandFillPercent = fillAmount;
+                        FillPercent = fillAmount;
+                        break;
+
+                    case ("userandfillpercent"):
+                        UseRandFillPercent = bool.Parse(line[1].Trim());
                         break;
 
                     case ("endgoalthreshold"):

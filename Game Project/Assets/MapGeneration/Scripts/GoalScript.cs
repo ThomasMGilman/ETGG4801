@@ -39,7 +39,9 @@ public class GoalScript : MonoBehaviour
     {
         other.SendMessage("updateScore", value);
         this.gameObject.GetComponent<MeshRenderer>().enabled = false;
-        this.gameObject.GetComponent<ParticleSystem>().Stop();
+        this.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+        this.transform.GetChild(1).GetComponent<Light>().enabled = false;
+        this.transform.GetChild(2).GetComponent<ParticleSystem>().Stop();
         this.gameObject.GetComponent<MeshCollider>().enabled = false;
         destroy = true;
         audioS.Play();
