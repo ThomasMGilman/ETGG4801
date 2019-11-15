@@ -72,35 +72,36 @@
     <Compile Include="Assets\MapGeneration\Scripts\RoomsGeneration.cs" />
     <Compile Include="Assets\MapGeneration\Scripts\SpawnerScript.cs" />
     <Compile Include="Assets\Sound\EndlessCaveAmbience\scripts\RandomMusic.cs" />
+    <None Include="Assets\Resources\scoreBoard.txt" />
     <None Include="Assets\Sound\Warped Fantasy\Source.txt" />
     <None Include="Assets\Resources\worldSettings.txt" />
     <None Include="Assets\Sound\WAV\Source.txt" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>D:/School/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>

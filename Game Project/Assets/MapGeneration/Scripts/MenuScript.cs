@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -15,7 +16,11 @@ public class MenuScript : MonoBehaviour
     public Button ContinueGameButton;
     public Button SettingsButton;
     public Button QuitButton;
+    public TextAsset scoreBoard;
     private Text scoreText;
+    private string scorePath = "Assets/Resources/scoreBoard.txt";
+
+    private SortedDictionary<float, List<string>> player_scores;
 
     CursorLockMode wantMode;
 
@@ -50,6 +55,8 @@ public class MenuScript : MonoBehaviour
         winPanel.SetActive(false);
 
         losePanel.SetActive(false);
+
+        player_scores = new SortedDictionary<float, List<string>>();
     }
 
     private bool keyInput()
@@ -142,6 +149,26 @@ public class MenuScript : MonoBehaviour
     {
         Cursor.lockState = wantMode = state;
         Cursor.visible = (CursorLockMode.Locked != wantMode);
+    }
+
+    private void addName_ToDictionary(ref float value, ref string name)
+    {
+        if (!player_scores[value].Contains(name))
+            player_scores[value].Add(name);
+    }
+
+    private void displayScore()
+    {
+        StreamReader scoreReader = new StreamReader(scorePath, true); //open Score Text
+        while(!scoreReader.EndOfStream)
+        {
+            string[] line = scoreReader.ReadLine().Trim().Split();
+            string nameToCheck = line[0].Trim().ToLower();
+            float scoreVal = float.Parse(line[1].Trim());
+            if (player_scores.ContainsKey(scoreVal))
+                addName_ToDictionary(ref scoreVal, ref nameToCheck);
+
+        }
     }
 
     /*
