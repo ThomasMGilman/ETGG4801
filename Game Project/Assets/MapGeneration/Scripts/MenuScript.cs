@@ -38,7 +38,7 @@ public class MenuScript : MonoBehaviour
         ContinueGameButton.interactable = false;
         ContinueGameButton.transform.localScale = ContinueGameButton.transform.localScale / 2;
 
-        SettingsButton.interactable = true;
+        SettingsButton.interactable = false;
         SettingsButton.transform.localScale = SettingsButton.transform.localScale / 2;
 
         QuitButton.interactable = true;

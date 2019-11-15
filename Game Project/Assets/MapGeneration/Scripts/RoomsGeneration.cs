@@ -617,7 +617,7 @@ public class RoomsGeneration : MapGeneration
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         //Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 12.5f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 6);
+        drawCircle(randTileInRoom, 4);
         GameObject goal = Instantiate(Goal_prefab, tileLocation, Goal_prefab.transform.rotation);//, this.transform);             //Create Goal object at location;
         float score = val;
         if (val < 0)
@@ -635,7 +635,7 @@ public class RoomsGeneration : MapGeneration
         Vector3 tileLocation = getObjPosition(randTileInRoom);                                                  //Convert Tiles location to worldPosition
         //Debug.DrawLine(tileLocation, tileLocation + new Vector3(0, 20, 0), Color.red, 5000);
         tileLocation.y = 10f;                                                                                   //OffsetGoalObject off the ground by its height
-        drawCircle(randTileInRoom, 6);
+        drawCircle(randTileInRoom, 4);
         Instantiate(Spawn_prefab, tileLocation, Spawn_prefab.transform.rotation);//, this.transform);           //Create Goal object at location;
         this.transform.parent.SendMessage("roomFinished");
     }

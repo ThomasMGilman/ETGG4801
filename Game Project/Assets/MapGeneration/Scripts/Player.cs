@@ -36,7 +36,8 @@ public class Player : MonoBehaviour
         trail = new Queue<GameObject>();
         steps = 0;
 
-        if (useMaxTrail) maxTrail = 2 ^ (sizeof(uint) * 8) - 1;
+        //if (useMaxTrail) maxTrail = 2 ^ (sizeof(uint) * 8) - 1;
+        maxTrail = 100000;//2 ^ (sizeof(uint) * 8) - 1;
 
         this.Player_Rigidbody = GetComponent<Rigidbody>();
         this.Player_Cam = this.transform.GetChild(0).GetComponent<Camera>();
@@ -58,8 +59,8 @@ public class Player : MonoBehaviour
 
     private void checkInput()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-            SetCursorState(CursorLockMode.None);
+        //if (Input.GetKeyDown(KeyCode.Q))  //For testing
+        //    SetCursorState(CursorLockMode.None);
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
             SetCursorState(CursorLockMode.Locked);
@@ -68,6 +69,7 @@ public class Player : MonoBehaviour
         {
             SetCursorState(CursorLockMode.None);
             menuObject.SetActive(true);
+            overLay.SetActive(false);
             GameObject.FindGameObjectWithTag("Menu").SendMessage("setPauseState", !paused);
         }
 
@@ -156,7 +158,8 @@ public class Player : MonoBehaviour
     private void setPauseState(bool state)
     {
         paused = state;
-        overLay.SetActive(paused);
+        //overLay.SetActive(paused);
+        if (!overLay.activeSelf) overLay.SetActive(true);
         if(!paused)
             SetCursorState(CursorLockMode.Locked);
     }
