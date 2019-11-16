@@ -15,7 +15,7 @@ MonoBehaviour:
   m_PixelRect:
     serializedVersion: 2
     x: 10
-    y: 51.333336
+    y: 50
     width: 2308
     height: 1342.6667
   m_ShowMode: 4
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_MinSize: {x: 683, y: 494}
   m_MaxSize: {x: 14004, y: 14044}
   vertical: 0
-  controlID: 51
+  controlID: 124
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -320,7 +320,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 10
-    y: 893.3334
+    y: 892
     width: 1890
     height: 462
   m_ViewDataDictionary: {fileID: 0}
@@ -337,20 +337,20 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/MapGeneration/Prefab
+    - Assets/MapGeneration/Scripts
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/MapGeneration/Prefab
+  - Assets/MapGeneration/Scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: D:\School\Programs\ETGG 4801 Design Lab\Game Project
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 602d0000
-    m_LastClickedID: 11616
-    m_ExpandedIDs: 00000000d22c00000e2d0000d62f00003c30000000ca9a3b
+    m_SelectedIDs: 962d0000
+    m_LastClickedID: 11670
+    m_ExpandedIDs: 00000000d22c00003c30000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -456,7 +456,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 1900
-    y: 81.333336
+    y: 80
     width: 416
     height: 1274
   m_ViewDataDictionary: {fileID: 0}
@@ -494,7 +494,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 10
-    y: 81.333336
+    y: 80
     width: 304
     height: 793
   m_ViewDataDictionary: {fileID: 0}
@@ -503,7 +503,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 0a34fcff3e34fcffe234fcff9e63fcff6467fcfffa82fcffc086fcff46fbffff22310000
+      m_ExpandedIDs: 061cffff3c1cffff46fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -549,7 +549,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 314
-    y: 81.333336
+    y: 80
     width: 1584
     height: 793
   m_ViewDataDictionary: {fileID: 0}
@@ -565,7 +565,7 @@ MonoBehaviour:
   m_Position:
     m_Target: {x: 708.48267, y: -444.91397, z: -552.5011}
     speed: 2
-    m_Value: {x: 708.48267, y: -444.91397, z: -552.5011}
+    m_Value: {x: -17.95394, y: 0.43117896, z: 0.5410982}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -596,11 +596,11 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.07801781, y: -0.92450243, z: 0.29608572, w: -0.23057722}
     speed: 2
-    m_Value: {x: -0.07795453, y: -0.9237526, z: 0.29584557, w: -0.2303902}
+    m_Value: {x: -0.13836654, y: 0.6762013, z: -0.12755798, w: -0.7122748}
   m_Size:
     m_Target: 809.50995
     speed: 2
-    m_Value: 809.50995
+    m_Value: 35.639194
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -648,7 +648,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 314
-    y: 81.333336
+    y: 80
     width: 1584
     height: 793
   m_ViewDataDictionary: {fileID: 0}

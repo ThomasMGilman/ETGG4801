@@ -622,7 +622,7 @@ public class RoomsGeneration : MapGeneration
         float score = val;
         if (val < 0)
         {
-            score = UnityEngine.Random.Range(50, 150);
+            score = UnityEngine.Random.Range(25, 75);
             goal.transform.localScale = goalScale;
             tileLocation.y -= Goal_prefab.transform.localScale.y*1.5f;
             goal.transform.position = tileLocation;

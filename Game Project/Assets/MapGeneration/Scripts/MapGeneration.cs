@@ -294,14 +294,14 @@ public class MapGeneration : MonoBehaviour
         int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - 1 - endGoalThreshold, WorldHeight - 1);
         if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
         endGoalRoom = Map[randEndGoalX, randEndGoalZ];
-        endGoalRoom.Room.SendMessage("setGoal", 1000);
+        endGoalRoom.Room.SendMessage("setGoal", 2500);
 
         foreach(Map_Room r in Map)
         {
             
             if (!(r.mapIndex_X == 0 && r.mapIndex_Z == 0))
             {
-                int randNumGoals = UnityEngine.Random.Range(2, 5);
+                int randNumGoals = UnityEngine.Random.Range(5, 10);
                 while(randNumGoals > 0)
                 {
                     r.Room.SendMessage("setGoal", -1);
