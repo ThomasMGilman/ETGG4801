@@ -18,6 +18,7 @@ public class Player : MonoBehaviour
     private GameObject menuObject, overLay;
     bool paused = false;
     bool gotGoal = false;
+    bool jumping = false;
     float goalValue = 1000;
     float angleX, angleY;
     float score = 500;
@@ -28,6 +29,9 @@ public class Player : MonoBehaviour
     uint maxTrail = 400000000;
     bool useMaxTrail = true;
     float travelDistancePerTrailMarker = 300;
+    float jumpAmount = .15f;
+    float jumpDis = 0;
+    float groundHight;
     private float steps = 0;
     private Queue<GameObject> trail;
 
@@ -35,6 +39,7 @@ public class Player : MonoBehaviour
     {
         trail = new Queue<GameObject>();
         steps = 0;
+        groundHight = this.transform.position.y - this.transform.localScale.y*1.5f;
 
         //if (useMaxTrail) maxTrail = 2 ^ (sizeof(uint) * 8) - 1;
         maxTrail = 100000;//2 ^ (sizeof(uint) * 8) - 1;
@@ -51,7 +56,7 @@ public class Player : MonoBehaviour
 
         overLay.SetActive(true);
         scoreText = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>();
-        scoreText.text = score.ToString();
+        scoreText.text = ((int)score).ToString();
         Vector3 miniMapPos = this.transform.position;
         miniMapPos.y += 100;
         MiniMap_Cam.transform.position = miniMapPos;
@@ -71,6 +76,12 @@ public class Player : MonoBehaviour
             menuObject.SetActive(true);
             overLay.SetActive(false);
             GameObject.FindGameObjectWithTag("Menu").SendMessage("setPauseState", !paused);
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space) && !jumping)
+        {
+            jumping = true;
+            jumpDis = jumpAmount;
         }
 
     }
@@ -103,7 +114,7 @@ public class Player : MonoBehaviour
             {
                 GameObject.FindGameObjectWithTag("Menu").SendMessage("loseScreen");
             }
-            scoreText.text = score.ToString();
+            scoreText.text = ((int)score).ToString();
 
             steps += Mathf.Abs(Player_Velocity.x) + Mathf.Abs(Player_Velocity.z);
             leaveTrail();
@@ -117,7 +128,16 @@ public class Player : MonoBehaviour
             if (Player_Angle.x >= 75) Player_Angle.x = 75; if (Player_Angle.x <= -75) Player_Angle.x = -75;
             this.transform.rotation = Quaternion.Euler(Player_Angle);
             Vector3 newPosOffset = Player_Velocity != Vector3.zero ? Player_Cam.transform.TransformDirection(Player_Velocity * Time.fixedDeltaTime) : Vector3.zero;
-            if (this.transform.position.y + newPosOffset.y < 10.5) newPosOffset.y = 0;
+            newPosOffset.y = 0;
+            if (jumping && jumpDis > 0)
+            {
+                jumpDis -= jumpAmount * Time.fixedDeltaTime;
+                newPosOffset.y = jumpDis;
+            }
+            else
+                jumping = false;
+
+            if (this.transform.position.y + newPosOffset.y < groundHight) newPosOffset.y = 0;
             this.transform.position += newPosOffset;
             updateCameraPosition();
 
@@ -179,7 +199,12 @@ public class Player : MonoBehaviour
         }
         if(other.tag == "Spawner" && gotGoal)
         {
-            GameObject.FindGameObjectWithTag("Menu").SendMessage("winScreen", score);
+            GameObject.FindGameObjectWithTag("Menu").SendMessage("winScreen", (int)score);
+        }
+        if(other.tag == "Roof")
+        {
+            jumping = false;
+            jumpDis = 0;
         }
     }
 }

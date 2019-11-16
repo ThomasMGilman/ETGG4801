@@ -124,7 +124,7 @@ public class MenuScript : MonoBehaviour
         if(Goal != null) Goal.SendMessage("setPauseState", paused);
     }
 
-    private void winScreen(float score)
+    private void winScreen(int score)
     {
         setPauseState(true);
         winPanel.SetActive(true);

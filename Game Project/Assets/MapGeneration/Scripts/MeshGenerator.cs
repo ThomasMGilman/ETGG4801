@@ -56,6 +56,7 @@ public class MeshGenerator : MonoBehaviour
     public void setUVs(in Mesh mesh, in int[,] map, in float squareSize)
     {
         Vector2[] uvs = new Vector2[Mesh_Vertices.Count];
+
         float xLerpAmount = map.GetLength(0) / 2 * squareSize;
         for (int i = 0; i < Mesh_Vertices.Count; i++)
         {

@@ -624,6 +624,8 @@ public class RoomsGeneration : MapGeneration
         {
             score = UnityEngine.Random.Range(50, 150);
             goal.transform.localScale = goalScale;
+            tileLocation.y -= Goal_prefab.transform.localScale.y*1.5f;
+            goal.transform.position = tileLocation;
         }
         goal.SendMessage("setValue", score);
         this.transform.parent.SendMessage("roomFinished");
