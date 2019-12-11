@@ -591,4 +591,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/GameScene.unity
-  playerPath: D:/School/Programs/ETGG 4801 Design Lab/Builds/Game Project.exe
+  playerPath: D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Builds/Game Project.exe

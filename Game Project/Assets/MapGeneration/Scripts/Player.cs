@@ -109,7 +109,7 @@ public class Player : MonoBehaviour
             checkInput();
             Player_Velocity = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized * 10;
             Player_Angle = new Vector3(updateRotation(ref this.angleY, "MouseY", -1), updateRotation(ref this.angleX, "MouseX"), 0);
-            score -= 10 * Time.deltaTime;
+            score -= 9 * Time.deltaTime;
             if (score <= 0)
             {
                 GameObject.FindGameObjectWithTag("Menu").SendMessage("loseScreen");
