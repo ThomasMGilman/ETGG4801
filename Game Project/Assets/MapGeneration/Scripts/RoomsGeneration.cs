@@ -435,10 +435,9 @@ public class RoomsGeneration : MapGeneration
                 if (x == 0 || x == RoomWidth - 1 || y == 0 || y == RoomHeight - 1)
                     TileMap[x, y] = 1;
                 else
-                    TileMap[x, y] = UnityEngine.Random.Range(0, 100) < RandFillPercent ? 1 : 0;
+                    TileMap[x, y] = UnityEngine.Random.Range(0, 100) < RandFillPercent ? 0 : 1;
             }
         }
-
     }
 
     /// <summary>
