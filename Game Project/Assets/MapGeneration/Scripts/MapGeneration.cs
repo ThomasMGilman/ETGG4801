@@ -49,19 +49,8 @@ public class MapGeneration : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        roomProcessCount = 0;
-        endGoalThreshold = 0;
-
-        importMapSettings(mapSettingsName);
-        numRooms = WorldWidth * WorldHeight;
-        Map = new Map_Room[WorldWidth, WorldHeight];
+        importMapSettings(mapSettingsName);   
         createWorld();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void createWorld()
@@ -71,16 +60,17 @@ public class MapGeneration : MonoBehaviour
         float xPos, zPos;
         for(int x = 0; x < WorldWidth; x++)
         {
-            xPos = getRoomPosX(x);
-            for(int z = 0; z < WorldHeight; z++)
+            xPos = x * (RoomWidth + HalfWidth);
+            for (int z = 0; z < WorldHeight; z++)
             {
-                zPos = getRoomPosZ(z);
+                zPos = z * (RoomHeight + HalfHeight);
                 createRoom(x, z, new Vector3(xPos, 15, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
             }
         }
 
         Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
         Vector3 planePosition = scaleVec + this.transform.position;
+
         planePosition.y = 10f;
         floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
         floor.transform.localScale = scaleVec;
@@ -89,10 +79,57 @@ public class MapGeneration : MonoBehaviour
         planePosition.y = 15f;
         roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation, this.transform);
         roof.transform.localScale = scaleVec;
+
         planePosition.y += 1f;
         floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
         floor2.transform.localScale = scaleVec;
     }
+
+    private void createRoom(int x, int z, Vector3 roomPosition, bool doGeneration)
+    {
+        if (doGeneration)
+        {
+            Map[x, z] = createRoomStruct(x, z, doGeneration, (x == 0 && z == 0), Instantiate(Room_prefab, roomPosition, Room_prefab.transform.rotation, this.transform));
+            Map[x, z].worldPos = roomPosition;
+            Map[x, z].Room.name = "Room: [" + x.ToString() + "," + z.ToString() + "]";
+
+            if (x >= 1) Map[x, z].unConnectedNeighbours.Add((x - 1, z));
+            if (x < WorldWidth - 1) Map[x, z].unConnectedNeighbours.Add((x + 1, z));
+            if (z >= 1) Map[x, z].unConnectedNeighbours.Add((x, z - 1));
+            if (z < WorldHeight - 1) Map[x, z].unConnectedNeighbours.Add((x, z + 1));
+        }
+        else
+            Map[x, z] = createRoomStruct(x, z, doGeneration, false);
+    }
+
+    Map_Room createRoomStruct(int x, int z, bool generated, bool isConnected, GameObject newRoom = null)
+    {
+        return new Map_Room()
+        {
+            Room = newRoom,
+            mapIndex_X = x,
+            mapIndex_Z = z,
+            connections = new HashSet<(int, int)>(),
+            connectionPath = new List<Map_Room>(),
+            unConnectedNeighbours = new List<(int, int)>(),
+            Generated = generated,
+            ReadyToGenMesh = false,
+            ConnectedToMainRoom = isConnected
+        };
+    }
+
+    public struct Map_Room
+    {
+        public GameObject Room;
+        public int mapIndex_X, mapIndex_Z;
+        public HashSet<(int, int)> connections;
+        public List<Map_Room> connectionPath;
+        public List<(int, int)> unConnectedNeighbours;
+        public Vector3 worldPos;
+        public bool Generated;
+        public bool ReadyToGenMesh;
+        public bool ConnectedToMainRoom;
+    };
 
     /// <summary>
     /// Creates a Point package of two PointToSend Structs for the rooms to get and draw a passage to
@@ -103,8 +140,8 @@ public class MapGeneration : MonoBehaviour
     private ((int,int), (int,int)) getPointPackage(Map_Room a, Map_Room b)
     {
         //SetPoint between Rooms to create a passage to
-        (int, int) connectionPoint = (0,0);
-        (int, int) otherPoint = (0,0);
+        (int, int) connectionPoint = (0, 0), otherPoint = (0, 0);
+
         //Set point X Pos
         if (b.mapIndex_X < a.mapIndex_X)
         {
@@ -205,87 +242,6 @@ public class MapGeneration : MonoBehaviour
         }
     }
 
-    private void generateMeshes()
-    {
-        foreach (Map_Room room in Map)
-        {
-            //room.Room.SendMessage("debugShowRoomTiles");
-            room.Room.SendMessage("generateRoomMesh");
-        }
-    }
-
-    private float getRoomPosX(int x)
-    {
-        return x * (RoomWidth + HalfWidth);
-    }
-
-    private float getRoomPosZ(int z)
-    {
-        return z * (RoomHeight + HalfHeight);
-    }
-
-    public bool isRoomGenerated(int x, int z)
-    {
-        return Map[x,z].Generated;
-    }
-    
-    Map_Room createRoomStruct(int x, int z, bool generated, bool isConnected, GameObject newRoom = null)
-    {
-        return new Map_Room() { Room = newRoom,
-                                mapIndex_X = x, mapIndex_Z = z,
-                                connections = new HashSet<(int, int)>(),
-                                connectionPath = new List<Map_Room>(),
-                                unConnectedNeighbours = new List<(int, int)>(),
-                                Generated = generated,
-                                ReadyToGenMesh = false,
-                                ConnectedToMainRoom = isConnected };
-    }
-
-    private void createRoom(int x, int z, Vector3 roomPosition, bool doGeneration)
-    {
-        if (doGeneration)
-        {
-            Map[x, z] = createRoomStruct(x, z, doGeneration, (x == 0 && z == 0), Instantiate(Room_prefab, roomPosition, Room_prefab.transform.rotation, this.transform));
-            Map[x, z].worldPos = roomPosition;
-            Map[x, z].Room.name = "Room: [" + x.ToString() + "," + z.ToString() + "]";
-
-            if (x >= 1)             Map[x, z].unConnectedNeighbours.Add((x - 1, z));
-            if (x < WorldWidth - 1)  Map[x, z].unConnectedNeighbours.Add((x + 1, z));
-            if (z >= 1)             Map[x, z].unConnectedNeighbours.Add((x, z-1));
-            if (z < WorldHeight - 1) Map[x, z].unConnectedNeighbours.Add((x, z+1));
-        }
-        else
-            Map[x, z] = createRoomStruct(x, z, doGeneration, false);
-    }
-
-    public struct Map_Room
-    {
-        public GameObject Room;
-        public int mapIndex_X, mapIndex_Z;
-        public HashSet<(int, int)> connections;
-        public List<Map_Room> connectionPath;
-        public List<(int, int)> unConnectedNeighbours;
-        public Vector3 worldPos;
-        public bool Generated;
-        public bool ReadyToGenMesh;
-        public bool ConnectedToMainRoom;
-    };
-
-    private void roomReady(Transform t)
-    {
-        for(int x = 0; x < WorldWidth; x++)
-        {
-            for(int z = 0; z < WorldHeight; z++)
-            {
-                if(Map[x,z].Generated)
-                {
-                    if (Map[x, z].Room != null && Map[x, z].Room.name == t.name)
-                        Map[x, z].ReadyToGenMesh = true;
-                }
-            }
-        }
-    }
-
     private void setEndGoalAndSpawn()
     {
         int randEndGoalX = UnityEngine.Random.Range(WorldWidth - 1 - endGoalThreshold, WorldWidth - 1);
@@ -326,9 +282,14 @@ public class MapGeneration : MonoBehaviour
             connectRooms();
             setEndGoalAndSpawn();
         }
-        if(roomProcessCount == numRooms + 2) //FinaleCheck
+        //FinaleCheck Tells Rooms to generate their assigned Mesh's
+        if(roomProcessCount == numRooms + 2)
         {
-            generateMeshes();
+            foreach (Map_Room room in Map)
+            {
+                //room.Room.SendMessage("debugShowRoomTiles");
+                room.Room.SendMessage("generateRoomMesh");
+            }
         }
     }
 
@@ -448,6 +409,11 @@ public class MapGeneration : MonoBehaviour
                 }
             }
         }
+
+        //Set Globals
+        roomProcessCount = 0;
+        numRooms = WorldWidth * WorldHeight;
+        Map = new Map_Room[WorldWidth, WorldHeight];
     }
 
     private void OnDestroy()
@@ -458,41 +424,4 @@ public class MapGeneration : MonoBehaviour
         }
         Destroy(this.gameObject);
     }
-
-    /*delegate void TreeVisitor<RoomTree>(Map_Room room);
-
-    class RoomTree
-    {
-        private Map_Room NodeRoom;
-        private LinkedList<RoomTree> children;
-
-        public RoomTree(Map_Room NodeRoom)
-        {
-            this.NodeRoom = NodeRoom;
-            this.children = new LinkedList<RoomTree>();
-        }
-
-        public void AddChild(Map_Room roomToAdd)
-        {
-            this.children.AddFirst(new RoomTree(roomToAdd));
-        }
-
-        public RoomTree getChild(int i)
-        {
-            foreach(RoomTree r in children)
-            {
-                if (--i == 0)
-                    return r;
-            }
-            return null;
-        }
-
-        public void Traverse(RoomTree node, TreeVisitor<RoomTree> visitor)
-        {
-            visitor(node.NodeRoom);
-            foreach (RoomTree child in node.children)
-                Traverse(child, visitor);
-        }
-    }*/
-
 }

@@ -1,5 +1,5 @@
-worldWidth 6
-worldHeight 6
+worldWidth 2
+worldHeight 2
 
 roomWidth 50
 roomHeight 50
