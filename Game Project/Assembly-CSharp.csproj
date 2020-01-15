@@ -78,7 +78,6 @@
     <Compile Include="Assets\MapGeneration\Scripts\RoomGeneration\RoomsGeneration.cs" />
     <Compile Include="Assets\Sound\EndlessCaveAmbience\scripts\RandomMusic.cs" />
     <None Include="Assets\Resources\scoreBoard.txt" />
-    <None Include="Assets\Shaders\Bloom.shader" />
     <None Include="Assets\Sound\Warped Fantasy\Source.txt" />
     <None Include="Assets\Resources\worldSettings.txt" />
     <None Include="Assets\Sound\WAV\Source.txt" />
