@@ -81,6 +81,7 @@
     <None Include="Assets\Sound\Warped Fantasy\Source.txt" />
     <None Include="Assets\Resources\worldSettings.txt" />
     <None Include="Assets\Sound\WAV\Source.txt" />
+    <None Include="Assets\MapGeneration\Materials\cave_textures\rock_cave\Source.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

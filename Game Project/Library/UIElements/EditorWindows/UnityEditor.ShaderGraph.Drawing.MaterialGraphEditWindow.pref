@@ -17,8 +17,20 @@ MonoBehaviour:
   - __PanelContainer__rootVisualContainer__217f2c7366e711a46bf857f9932891d1__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedSelection
   - __PanelContainer__rootVisualContainer__c2665b16bedce8d44a6dded877b287d9__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedViewTransform
   - __PanelContainer__rootVisualContainer__c2665b16bedce8d44a6dded877b287d9__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedSelection
+  - __PanelContainer__rootVisualContainer__1cf48cd883afe854ba3249940394ccf1__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedViewTransform
+  - __PanelContainer__rootVisualContainer__1cf48cd883afe854ba3249940394ccf1__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedSelection
+  - __PanelContainer__rootVisualContainer__928a78a678a29bb47b3dcd758016e3d6__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedViewTransform
+  - __PanelContainer__rootVisualContainer__928a78a678a29bb47b3dcd758016e3d6__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedSelection
+  - __PanelContainer__rootVisualContainer__36ca288bd0c9a4144b00993e89b68ee8__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedViewTransform
+  - __PanelContainer__rootVisualContainer__36ca288bd0c9a4144b00993e89b68ee8__MaterialGraphView__UnityEditor.Experimental.GraphView.GraphView+PersistedSelection
   m_Values:
+  - '{"position":{"x":196.0,"y":156.0,"z":0.0},"scale":{"x":0.7561436891555786,"y":0.7561436891555786,"z":1.0}}'
+  - '{"m_Version":110,"m_SelectedElementsArray":["8a0f4db0-afc2-44ca-a6d0-24da4f17f469","c512d38e-53f6-4f66-853a-b4662f49a7f2","4a5c010c-ed3b-4fe5-87da-878a8f3817d2","bdf1920a-0c6d-46e2-97dc-62609306c14e"]}'
   - '{}'
   - '{}'
-  - '{"position":{"x":686.4000244140625,"y":559.2000122070313,"z":0.0},"scale":{"x":0.37593701481819155,"y":0.37593701481819155,"z":1.0}}'
-  - '{"m_Version":498,"m_SelectedElementsArray":[]}'
+  - '{}'
+  - '{}'
+  - '{}'
+  - '{}'
+  - '{}'
+  - '{}'

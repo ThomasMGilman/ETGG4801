@@ -3,7 +3,7 @@
 public class SquareGrid
 {
     public Square[,] squares;
-    public SquareGrid(int[,] map, float squareSize)
+    public SquareGrid(int[,] map, float squareSize, int controlNodeType = 1)
     {
         int nodeCountX = map.GetLength(0);
         int nodeCountY = map.GetLength(1);
@@ -21,7 +21,7 @@ public class SquareGrid
             {
                 float zPos = -halfMapHeight + y * square_andHalf;
                 Vector3 pos = new Vector3(xPos, 0, zPos);
-                controlNodes[x, y] = new ControlNode(pos, map[x, y] == 1, squareSize);
+                controlNodes[x, y] = new ControlNode(pos, map[x, y] == controlNodeType, squareSize);
             }
         }
 

@@ -6,130 +6,155 @@ using System;
 
 public class MapGeneration : MonoBehaviour
 {
-    public GameObject Room_prefab;
-    public GameObject Spawn_prefab;
-    public GameObject Goal_prefab;
-    public GameObject tmpFloor_prefab;
-    public GameObject tmpRoof_prefab;
+    public GameObject Room_Prefab;
+    public GameObject Spawn_Prefab;
+    public GameObject Goal_Prefab;
+    public GameObject TmpFloor_Prefab;
+    public GameObject TmpRoof_Prefab;
     public string mapSettingsName;
 
-    public static int WorldWidth = 5, WorldHeight = 5;              //dimensions of Wold Space
-    public static int RoomWidth = 100, RoomHeight = 100;            //dimensions of Room space
-    public static float HalfWidth, HalfHeight;
+    public static int worldWidth = 5, worldHeight = 5;              //dimensions of Wold Space
+    public static int roomWidth = 100, roomHeight = 100;            //dimensions of Room space
+    public static float halfRoomWidth, halfRoomHeight;
 
-    public static int HallWidth = 1;                                //Room passage hallwayWidth
+    public static int hallWidth = 1;                                //Room passage hallwayWidth
     public static int roomConnectionWidth = 1;                      //HallwayBetween MapRoomsWidth
-    public static int SquareSize = 1;                               //size of each tile
+    public static int squareSize = 1;                               //size of each tile
     public static float halfSquareSize = .5f;
-    public static int BorderSize = 1;                               //Mesh Border size, surrounding rooms
-    public static int SmoothTimes = 5;                              //Times to smooth the map out
+    public static int borderSize = 1;                               //Mesh Border size, surrounding rooms
+    public static int smoothTimes = 5;                              //Times to smooth the map out
 
-    public static int WallThresholdSize = 50;
-    public static int RoomThresholdSize = 50;
+    public static int wallThresholdSize = 50;
+    public static int roomThresholdSize = 50;
 
-    public static string Seed = "Random";                           //When generating map using seed, uses Hash of string
-    public static bool UseRandSeed = false;
+    public static string seed = "Random";                           //When generating map using seed, uses Hash of string
+    public static bool useRandSeed = false;
 
-    public static int MaxFillPercent = 52;
-    public static int MinFillPercent = 37;
-    public static int FillPercent;
-    public static bool UseRandFillPercent = false;
+    public static int maxFillPercent = 52;
+    public static int minFillPercent = 37;
+    public static int fillPercent;
+    public static bool useRandFillPercent = false;
 
     private static int roomProcessCount = 0;
     private static int numRooms = 0;
 
     private static int endGoalThreshold = 0;
 
-    private Map_Room[,] Map;
-    private GameObject floor, floor2;
-    private GameObject roof;
-    private Map_Room endGoalRoom, startRoom;
+    private MapRoom[,] map_ObjList;
+    private MapRoom endGoalRoom_Obj, startRoom_Obj;
+    private GameObject floor_Obj, floor2_Obj;
+    private GameObject roof_Obj;
+    
 
-    public enum neighbour{ LEFT, RIGHT, SAME_X, ABOVE, BELOW, SAME_Z };
+    public enum Neighbour{ LEFT, RIGHT, SAME_X, ABOVE, BELOW, SAME_Z };
     // Start is called before the first frame update
     void Start()
     {
-        importMapSettings(mapSettingsName);   
-        createWorld();
+        import_map_settings(mapSettingsName);   
+        create_world();
     }
 
-    private void createWorld()
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Map Generation Code
+    /// Creates a N by M size map specified by the worldSettings file that the settings are imported from.
+    /// Each Room object has a map created using the marching squares algorithm to geberate the rooms layout based on the specified thresholds given from the settings file.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void create_world()
     {
-        if (UseRandSeed) Seed = DateTime.Now.Ticks.ToString();
+        if (useRandSeed) seed = DateTime.Now.Ticks.ToString();
 
         float xPos, zPos;
-        for(int x = 0; x < WorldWidth; x++)
+        for(int x = 0; x < worldWidth; x++)
         {
-            xPos = x * (RoomWidth + HalfWidth);
-            for (int z = 0; z < WorldHeight; z++)
+            xPos = x * (roomWidth + halfRoomWidth);
+            for (int z = 0; z < worldHeight; z++)
             {
-                zPos = z * (RoomHeight + HalfHeight);
-                createRoom(x, z, new Vector3(xPos, 15, zPos), true);//(UnityEngine.Random.Range(0, 100) < RandFillPercent || (x == 0 && z == 0)) ? true : false);
+                zPos = z * (roomHeight + halfRoomHeight);
+                create_room(x, z, new Vector3(xPos, 15, zPos), true);
             }
         }
 
-        Vector3 scaleVec = new Vector3(WorldWidth / 2 * RoomWidth, 1, WorldHeight / 2 * RoomHeight);
+        //create_temp_floor_and_ceiling();
+    }
+
+    /// <summary>
+    /// Creates temporary Floor and Ceiling from planes
+    /// </summary>
+    private void create_temp_floor_and_ceiling()
+    {
+        //Creates Floor and Ceiling for 
+        Vector3 scaleVec = new Vector3(worldWidth / 2 * roomWidth, 1, worldHeight / 2 * roomHeight);
         Vector3 planePosition = scaleVec + this.transform.position;
 
         planePosition.y = 10f;
-        floor = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
-        floor.transform.localScale = scaleVec;
+        floor_Obj = Instantiate(TmpFloor_Prefab, planePosition, TmpFloor_Prefab.transform.rotation, this.transform);
+        floor_Obj.transform.localScale = scaleVec;
 
         scaleVec.y = -1;
         planePosition.y = 15f;
-        roof = Instantiate(tmpRoof_prefab, planePosition, tmpRoof_prefab.transform.rotation, this.transform);
-        roof.transform.localScale = scaleVec;
+        roof_Obj = Instantiate(TmpRoof_Prefab, planePosition, TmpRoof_Prefab.transform.rotation, this.transform);
+        roof_Obj.transform.localScale = scaleVec;
 
         planePosition.y += 1f;
-        floor2 = Instantiate(tmpFloor_prefab, planePosition, tmpFloor_prefab.transform.rotation, this.transform);
-        floor2.transform.localScale = scaleVec;
+        floor2_Obj = Instantiate(TmpFloor_Prefab, planePosition, TmpFloor_Prefab.transform.rotation, this.transform);
+        floor2_Obj.transform.localScale = scaleVec;
     }
 
-    private void createRoom(int x, int z, Vector3 roomPosition, bool doGeneration)
+    private void create_room(int x, int z, Vector3 roomPosition, bool doGeneration)
     {
         if (doGeneration)
         {
-            Map[x, z] = createRoomStruct(x, z, doGeneration, (x == 0 && z == 0), Instantiate(Room_prefab, roomPosition, Room_prefab.transform.rotation, this.transform));
-            Map[x, z].worldPos = roomPosition;
-            Map[x, z].Room.name = "Room: [" + x.ToString() + "," + z.ToString() + "]";
+            map_ObjList[x, z] = create_room_struct(x, z, doGeneration, (x == 0 && z == 0), Instantiate(Room_Prefab, roomPosition, Room_Prefab.transform.rotation, this.transform));
+            map_ObjList[x, z].worldPos = roomPosition;
+            map_ObjList[x, z].room_Obj.name = "Room: [" + x.ToString() + "," + z.ToString() + "]";
 
-            if (x >= 1) Map[x, z].unConnectedNeighbours.Add((x - 1, z));
-            if (x < WorldWidth - 1) Map[x, z].unConnectedNeighbours.Add((x + 1, z));
-            if (z >= 1) Map[x, z].unConnectedNeighbours.Add((x, z - 1));
-            if (z < WorldHeight - 1) Map[x, z].unConnectedNeighbours.Add((x, z + 1));
+            if (x >= 1) map_ObjList[x, z].unConnectedNeighbours.Add((x - 1, z));
+            if (x < worldWidth - 1) map_ObjList[x, z].unConnectedNeighbours.Add((x + 1, z));
+            if (z >= 1) map_ObjList[x, z].unConnectedNeighbours.Add((x, z - 1));
+            if (z < worldHeight - 1) map_ObjList[x, z].unConnectedNeighbours.Add((x, z + 1));
         }
         else
-            Map[x, z] = createRoomStruct(x, z, doGeneration, false);
+            map_ObjList[x, z] = create_room_struct(x, z, doGeneration, false);
     }
 
-    Map_Room createRoomStruct(int x, int z, bool generated, bool isConnected, GameObject newRoom = null)
+    MapRoom create_room_struct(int x, int z, bool generated, bool isConnected, GameObject newRoom = null)
     {
-        return new Map_Room()
+        return new MapRoom()
         {
-            Room = newRoom,
+            room_Obj = newRoom,
             mapIndex_X = x,
             mapIndex_Z = z,
             connections = new HashSet<(int, int)>(),
-            connectionPath = new List<Map_Room>(),
+            connectionPath = new List<MapRoom>(),
             unConnectedNeighbours = new List<(int, int)>(),
-            Generated = generated,
-            ReadyToGenMesh = false,
-            ConnectedToMainRoom = isConnected
+            generated = generated,
+            readyToGenMesh = false,
+            connectedToMainRoom = isConnected
         };
     }
 
-    public struct Map_Room
+    public struct MapRoom
     {
-        public GameObject Room;
-        public int mapIndex_X, mapIndex_Z;
-        public HashSet<(int, int)> connections;
-        public List<Map_Room> connectionPath;
-        public List<(int, int)> unConnectedNeighbours;
-        public Vector3 worldPos;
-        public bool Generated;
-        public bool ReadyToGenMesh;
-        public bool ConnectedToMainRoom;
+        public HashSet<(int, int)> connections;             // Set of all rooms that this room is connected to by their list position
+        public List<MapRoom> connectionPath;                // Rooms to go through to get to this room
+        public List<(int, int)> unConnectedNeighbours;      // Neighbouring rooms that havnt been connected in some way yet
+        public Vector3 worldPos;                            // Position of object in world space
+        public GameObject room_Obj;                         // Room object
+        public int mapIndex_X, mapIndex_Z;                  // Position in list
+        public bool generated;                              // Whether Rooms Mesh was created or not
+        public bool readyToGenMesh;                         // Whether the Room was fully created
+        public bool connectedToMainRoom;                    // Has Room been connected to main room yet
     };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Room Connection Code
+    /// This Code Bellow Connects all the Room Objects together.
+    /// Makes sure every room has a connection to the main room and is connected in someway to their neighbor room even if not directly so.
+    /// Upon Creating a connection to a room, the Room object has a path drawn to a point between the rooms from their nearest internal room.
+    /// 
+    /// 
+    /// Once All the Rooms have been connected together, all the Rooms have their Meshes created. 
+    /// Afterwhich an end room has the goal placed into it and the first room in the map_ObjList(mainRoom (0,0)) has the spawn placed into it.
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// <summary>
     /// Creates a Point package of two PointToSend Structs for the rooms to get and draw a passage to
@@ -137,7 +162,7 @@ public class MapGeneration : MonoBehaviour
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    private ((int,int), (int,int)) getPointPackage(Map_Room a, Map_Room b)
+    private ((int,int), (int,int)) get_point_package(MapRoom a, MapRoom b)
     {
         //SetPoint between Rooms to create a passage to
         (int, int) connectionPoint = (0, 0), otherPoint = (0, 0);
@@ -146,71 +171,71 @@ public class MapGeneration : MonoBehaviour
         if (b.mapIndex_X < a.mapIndex_X)
         {
             connectionPoint.Item1 = 0;
-            otherPoint.Item1 = RoomWidth - 1;
+            otherPoint.Item1 = roomWidth - 1;
         }
         else if (b.mapIndex_X > a.mapIndex_X)
         {
-            connectionPoint.Item1 = RoomWidth - 1;
+            connectionPoint.Item1 = roomWidth - 1;
             otherPoint.Item1 = 0;
         }
         else
         {
-            connectionPoint.Item1 = UnityEngine.Random.Range(0, RoomWidth - roomConnectionWidth - 1);
+            connectionPoint.Item1 = UnityEngine.Random.Range(0, roomWidth - roomConnectionWidth - 1);
             otherPoint.Item1 = connectionPoint.Item1;
         }
         //Set point Z Pos
         if (b.mapIndex_Z < a.mapIndex_Z)
         {
             connectionPoint.Item2 = 0;
-            otherPoint.Item2 = RoomHeight - 1;
+            otherPoint.Item2 = roomHeight - 1;
         }
         else if (b.mapIndex_Z > a.mapIndex_Z)
         {
-            connectionPoint.Item2 = RoomHeight - 1;
+            connectionPoint.Item2 = roomHeight - 1;
             otherPoint.Item2 = 0;
         }
         else
         {
-            connectionPoint.Item2 = UnityEngine.Random.Range(0, RoomHeight - roomConnectionWidth - 1);
+            connectionPoint.Item2 = UnityEngine.Random.Range(0, roomHeight - roomConnectionWidth - 1);
             otherPoint.Item2 = connectionPoint.Item2;
         }
         return (connectionPoint, otherPoint);
     }
 
-    private void updateConnections(ref Map_Room room, (int,int) newConnection)
+    private void update_connections(ref MapRoom room, (int,int) newConnection)
     {
-        room.connectionPath.Add(Map[newConnection.Item1, newConnection.Item2]);
-        Map[newConnection.Item1, newConnection.Item2].connectionPath.Add(room);
+        room.connectionPath.Add(map_ObjList[newConnection.Item1, newConnection.Item2]);
+        map_ObjList[newConnection.Item1, newConnection.Item2].connectionPath.Add(room);
         foreach ((int, int) coord in room.connections)
         {
             if(coord != (room.mapIndex_X,room.mapIndex_Z))
             {
-                Map[coord.Item1, coord.Item2].connections.Add(newConnection);                                                   //updateConnection
-                Map[newConnection.Item1, newConnection.Item2].connections.Add(coord);
-                if (Map[coord.Item1, coord.Item2].unConnectedNeighbours.Contains(newConnection))                                //if connection is has neighbour as unconnected, connect it
+                map_ObjList[coord.Item1, coord.Item2].connections.Add(newConnection);                                                   //updateConnection
+                map_ObjList[newConnection.Item1, newConnection.Item2].connections.Add(coord);
+                if (map_ObjList[coord.Item1, coord.Item2].unConnectedNeighbours.Contains(newConnection))                                //if connection is has neighbour as unconnected, connect it
                 {
-                    Map[coord.Item1, coord.Item2].unConnectedNeighbours.Remove(newConnection);
-                    Map[newConnection.Item1, newConnection.Item2].unConnectedNeighbours.Remove(coord);
+                    map_ObjList[coord.Item1, coord.Item2].unConnectedNeighbours.Remove(newConnection);
+                    map_ObjList[newConnection.Item1, newConnection.Item2].unConnectedNeighbours.Remove(coord);
                 }
-                if (Map[newConnection.Item1, newConnection.Item2].ConnectedToMainRoom)                                          //if new connection connectedToMainRoom, set it true
-                    Map[coord.Item1, coord.Item2].ConnectedToMainRoom = true;
+                if (map_ObjList[newConnection.Item1, newConnection.Item2].connectedToMainRoom)                                          //if new connection connectedToMainRoom, set it true
+                    map_ObjList[coord.Item1, coord.Item2].connectedToMainRoom = true;
 
-                Map[coord.Item1, coord.Item2].connections.UnionWith(Map[newConnection.Item1, newConnection.Item2].connections); //UnionConnections
-                Map[newConnection.Item1, newConnection.Item2].connections.UnionWith(Map[coord.Item1, coord.Item2].connections);
+                map_ObjList[coord.Item1, coord.Item2].connections.UnionWith(map_ObjList[newConnection.Item1, newConnection.Item2].connections); //UnionConnections
+                map_ObjList[newConnection.Item1, newConnection.Item2].connections.UnionWith(map_ObjList[coord.Item1, coord.Item2].connections);
             }
         }
         room.connections.Add(newConnection);
         room.unConnectedNeighbours.Remove(newConnection);
-        room.connections.UnionWith(Map[newConnection.Item1, newConnection.Item2].connections);
+        room.connections.UnionWith(map_ObjList[newConnection.Item1, newConnection.Item2].connections);
     }
 
-    private void connectRooms()
+    private void connect_rooms()
     {
-        List<Map_Room> notConnected = new List<Map_Room>();
+        List<MapRoom> notConnected = new List<MapRoom>();
         List<int> indeciesToRemove = new List<int>();
         System.Random rand = new System.Random();
 
-        foreach (Map_Room room in Map)
+        foreach (MapRoom room in map_ObjList)
             notConnected.Add(room);
         /////////////////////////////////////////////////////////////////////////////////////////////////// While Rooms not Connected
         while(notConnected.Count > 0)
@@ -221,38 +246,38 @@ public class MapGeneration : MonoBehaviour
             int oX, oZ;
 
             //Room is connected to itself
-            if (!Map[x, z].connections.Contains((x, z)))
-                Map[x, z].connections.Add((x, z));
+            if (!map_ObjList[x, z].connections.Contains((x, z)))
+                map_ObjList[x, z].connections.Add((x, z));
 
-            if (Map[x, z].unConnectedNeighbours.Count == 0) //connected to all its neighbours in some way
+            if (map_ObjList[x, z].unConnectedNeighbours.Count == 0) //connected to all its neighbours in some way
                 notConnected.RemoveAt(ri);
             else
             {
-                int neighbourIndex = rand.Next(0, Map[x, z].unConnectedNeighbours.Count - 1);
-                (oX,oZ) = Map[x, z].unConnectedNeighbours[neighbourIndex]; //Get random neighbour room to connect to
+                int neighbourIndex = rand.Next(0, map_ObjList[x, z].unConnectedNeighbours.Count - 1);
+                (oX,oZ) = map_ObjList[x, z].unConnectedNeighbours[neighbourIndex]; //Get random neighbour room to connect to
 
-                updateConnections(ref Map[x, z], (oX,oZ));
-                updateConnections(ref Map[oX, oZ], (x, z));
+                update_connections(ref map_ObjList[x, z], (oX,oZ));
+                update_connections(ref map_ObjList[oX, oZ], (x, z));
 
                 //Tell Rooms to create passage to point specified
-                ((int,int), (int,int)) pPack = getPointPackage(Map[x, z], Map[oX, oZ]);
-                Map[x, z].Room.SendMessage("connectToPoint", pPack.Item1);
-                Map[oX, oZ].Room.SendMessage("connectToPoint", pPack.Item2);
+                ((int,int), (int,int)) pPack = get_point_package(map_ObjList[x, z], map_ObjList[oX, oZ]);
+                map_ObjList[x, z].room_Obj.SendMessage("connect_to_point", pPack.Item1);
+                map_ObjList[oX, oZ].room_Obj.SendMessage("connect_to_point", pPack.Item2);
             }
         }
     }
 
-    private void setEndGoalAndSpawn()
+    private void set_end_goal_and_spawn()
     {
-        int randEndGoalX = UnityEngine.Random.Range(WorldWidth - 1 - endGoalThreshold, WorldWidth - 1);
-        if (randEndGoalX <= 0) randEndGoalX = WorldWidth - 1;
+        int randEndGoalX = UnityEngine.Random.Range(worldWidth - 1 - endGoalThreshold, worldWidth - 1);
+        if (randEndGoalX <= 0) randEndGoalX = worldWidth - 1;
 
-        int randEndGoalZ = UnityEngine.Random.Range(WorldHeight - 1 - endGoalThreshold, WorldHeight - 1);
-        if (randEndGoalZ <= 0) randEndGoalZ = WorldHeight - 1;
-        endGoalRoom = Map[randEndGoalX, randEndGoalZ];
-        endGoalRoom.Room.SendMessage("setGoal", 2500);
+        int randEndGoalZ = UnityEngine.Random.Range(worldHeight - 1 - endGoalThreshold, worldHeight - 1);
+        if (randEndGoalZ <= 0) randEndGoalZ = worldHeight - 1;
+        endGoalRoom_Obj = map_ObjList[randEndGoalX, randEndGoalZ];
+        endGoalRoom_Obj.room_Obj.SendMessage("set_goal", 2500);
 
-        foreach(Map_Room r in Map)
+        foreach(MapRoom r in map_ObjList)
         {
             
             if (!(r.mapIndex_X == 0 && r.mapIndex_Z == 0))
@@ -260,54 +285,56 @@ public class MapGeneration : MonoBehaviour
                 int randNumGoals = UnityEngine.Random.Range(5, 10);
                 while(randNumGoals > 0)
                 {
-                    r.Room.SendMessage("setGoal", -1);
+                    r.room_Obj.SendMessage("set_goal", -1);
                     randNumGoals--;
                 }
             }
         }
 
-        startRoom = Map[0, 0];
-        startRoom.Room.SendMessage("setSpawn");
+        startRoom_Obj = map_ObjList[0, 0];
+        startRoom_Obj.room_Obj.SendMessage("set_spawn");
     }
 
     /// <summary>
     /// After the last room has finished initializing the room layout, connect all the rooms together,
     /// Find furthest room path and create goal, then finally generate the meshes.
     /// </summary>
-    private void roomFinished()
+    private void room_finished()
     {
         roomProcessCount++;
         if (roomProcessCount == numRooms)
         {
-            connectRooms();
-            setEndGoalAndSpawn();
+            connect_rooms();
+            set_end_goal_and_spawn();
         }
         //FinaleCheck Tells Rooms to generate their assigned Mesh's
         if(roomProcessCount == numRooms + 2)
         {
-            foreach (Map_Room room in Map)
+            foreach (MapRoom room in map_ObjList)
             {
                 //room.Room.SendMessage("debugShowRoomTiles");
-                room.Room.SendMessage("generateRoomMesh");
+                room.room_Obj.SendMessage("generate_room_mesh");
             }
         }
     }
 
-    public void printVariables()
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Debug functions
+
+    public void print_variables()
     {
-        print("WorldWidth/Height: [" + WorldWidth + ", " + WorldHeight + "]" +
-            "\nRoomWidth/Height: [" + RoomWidth + ", " + RoomHeight + "]" +
-            "\nHalfWidth/Height: [" + HalfWidth + ", " + HalfHeight + "]" +
-            "\nHallWidtht: " + HallWidth + "" +
-            "\nSquareSize: " + SquareSize + "" +
-            "\nBorederSize: " + BorderSize + "" +
-            "\nSmoothTimes: " + SmoothTimes + "" +
-            "\nWallThresholdSize: " + WallThresholdSize + "" +
-            "\nRoomThresholdSize: " + RoomThresholdSize + "" +
-            "\nSeed: " + Seed + "\n");
+        print("WorldWidth/Height: [" + worldWidth + ", " + worldHeight + "]" +
+            "\nRoomWidth/Height: [" + roomWidth + ", " + roomHeight + "]" +
+            "\nHalfWidth/Height: [" + halfRoomWidth + ", " + halfRoomHeight + "]" +
+            "\nHallWidtht: " + hallWidth + "" +
+            "\nSquareSize: " + squareSize + "" +
+            "\nBorederSize: " + borderSize + "" +
+            "\nSmoothTimes: " + smoothTimes + "" +
+            "\nWallThresholdSize: " + wallThresholdSize + "" +
+            "\nRoomThresholdSize: " + roomThresholdSize + "" +
+            "\nSeed: " + seed + "\n");
     }
 
-    public void printExceptionMessage(string exceptionLocation, System.Exception e)
+    public void print_exception_message(string exceptionLocation, System.Exception e)
     {
         print(exceptionLocation+" Exception!!!:\n\t" + e.Message + 
             "\n\tStackTrace: " + e.StackTrace + 
@@ -315,11 +342,15 @@ public class MapGeneration : MonoBehaviour
             "\n\tInnerMessage: " + e.InnerException.Message);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// import function
+    /// Imports settings from the settingsFile for generating the rooms and size of the map
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /// <summary>
     /// Import Global MapGeneration Settings
     /// </summary>
     /// <param name="fileName"></param>
-    private void importMapSettings(string fileName)
+    private void import_map_settings(string fileName)
     {
         TextAsset settings = Resources.Load<TextAsset>(fileName);
         string[] lines = settings.text.Split('\n');
@@ -340,68 +371,68 @@ public class MapGeneration : MonoBehaviour
                 switch (line[0].Trim().ToLower())
                 {
                     case ("worldwidth"):
-                        WorldWidth = Int32.Parse(line[1].Trim());
+                        worldWidth = Int32.Parse(line[1].Trim());
                         break;
                     case ("worldheight"):
-                        WorldHeight = Int32.Parse(line[1].Trim());
+                        worldHeight = Int32.Parse(line[1].Trim());
                         break;
                     case ("roomwidth"):
-                        RoomWidth = Int32.Parse(line[1].Trim());
-                        HalfWidth = RoomWidth / 2;
+                        roomWidth = Int32.Parse(line[1].Trim());
+                        halfRoomWidth = roomWidth / 2;
                         break;
                     case ("roomheight"):
-                        RoomHeight = Int32.Parse(line[1].Trim());
-                        HalfHeight = RoomHeight / 2;
+                        roomHeight = Int32.Parse(line[1].Trim());
+                        halfRoomHeight = roomHeight / 2;
                         break;
                     case ("hallwidth"):
-                        HallWidth = Int32.Parse(line[1].Trim());
+                        hallWidth = Int32.Parse(line[1].Trim());
                         break;
                     case ("roomconnectionwidth"):
                         roomConnectionWidth = Int32.Parse(line[1].Trim());
                         break;
 
                     case ("squaresize"):
-                        SquareSize = Int32.Parse(line[1].Trim());
-                        halfSquareSize = SquareSize / 2;
+                        squareSize = Int32.Parse(line[1].Trim());
+                        halfSquareSize = squareSize / 2;
                         break;
                     case ("bordersize"):
-                        BorderSize = Int32.Parse(line[1].Trim());
+                        borderSize = Int32.Parse(line[1].Trim());
                         break;
 
                     case ("smoothtimes"):
-                        SmoothTimes = Int32.Parse(line[1].Trim());
+                        smoothTimes = Int32.Parse(line[1].Trim());
                         break;
 
                     case ("wallthresholdsize"):
-                        WallThresholdSize = Int32.Parse(line[1].Trim());
+                        wallThresholdSize = Int32.Parse(line[1].Trim());
                         break;
                     case ("roomthresholdsize"):
-                        RoomThresholdSize = Int32.Parse(line[1].Trim());
+                        roomThresholdSize = Int32.Parse(line[1].Trim());
                         break;
 
                     case ("seed"):
-                        Seed = line[1].Trim();
+                        seed = line[1].Trim();
                         break;
                     case ("userandseed"):
-                        UseRandSeed = Boolean.Parse(line[1].Trim());
+                        useRandSeed = Boolean.Parse(line[1].Trim());
                         break;
 
                     case ("randfillpercent"):
                         int fillAmount = Int32.Parse(line[1].Trim());
-                        fillAmount = fillAmount > MaxFillPercent ? MaxFillPercent : fillAmount;
-                        fillAmount = fillAmount < MinFillPercent ? MinFillPercent : fillAmount;
-                        FillPercent = fillAmount;
+                        fillAmount = fillAmount > maxFillPercent ? maxFillPercent : fillAmount;
+                        fillAmount = fillAmount < minFillPercent ? minFillPercent : fillAmount;
+                        fillPercent = fillAmount;
                         break;
 
                     case ("userandfillpercent"):
-                        UseRandFillPercent = bool.Parse(line[1].Trim());
+                        useRandFillPercent = bool.Parse(line[1].Trim());
                         break;
 
                     case ("endgoalthreshold"):
                         endGoalThreshold = Int32.Parse(line[1].Trim());
                         if (endGoalThreshold < 0) endGoalThreshold = 0;
-                        if (WorldHeight - endGoalThreshold < 1) endGoalThreshold = WorldHeight - 1;
-                        if (WorldWidth - endGoalThreshold < 1) endGoalThreshold = WorldWidth - 1;
+                        if (worldHeight - endGoalThreshold < 1) endGoalThreshold = worldHeight - 1;
+                        if (worldWidth - endGoalThreshold < 1) endGoalThreshold = worldWidth - 1;
                         break;
                     default:
                         print("\nSettingsException: " + line[0] + " doesnt exist as a valid setting!!\n\tLine: " + lines[i] + "\n\tLineLength: " + lines[i].Length + "\n");
@@ -412,8 +443,8 @@ public class MapGeneration : MonoBehaviour
 
         //Set Globals
         roomProcessCount = 0;
-        numRooms = WorldWidth * WorldHeight;
-        Map = new Map_Room[WorldWidth, WorldHeight];
+        numRooms = worldWidth * worldHeight;
+        map_ObjList = new MapRoom[worldWidth, worldHeight];
     }
 
     private void OnDestroy()

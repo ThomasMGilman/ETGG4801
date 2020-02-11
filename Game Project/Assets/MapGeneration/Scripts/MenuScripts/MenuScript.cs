@@ -59,7 +59,7 @@ public class MenuScript : MonoBehaviour
         player_scores = new SortedDictionary<float, List<string>>();
     }
 
-    private bool keyInput()
+    private bool key_input()
     {
         return (Input.GetKeyDown(KeyCode.Escape) ||
             Input.GetKeyDown(KeyCode.E) ||
@@ -70,19 +70,19 @@ public class MenuScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(winPanel.activeSelf && keyInput())
+        if(winPanel.activeSelf && key_input())
         {
             winPanel.SetActive(false);
             menuPanel.SetActive(true);
         }
-        else if(losePanel.activeSelf && keyInput())
+        else if(losePanel.activeSelf && key_input())
         {
             losePanel.SetActive(false);
             menuPanel.SetActive(true);
         }
     }
 
-    public void startGame()
+    public void start_game()
     {
         if (firstStart)
         {
@@ -97,67 +97,67 @@ public class MenuScript : MonoBehaviour
     }
 
     ///Tell Everyone to wake up and start playing again and hide the menu again
-    public void continueGame()
+    public void continue_game()
     {
         paused = false;
         menuPanel.SetActive(paused);
-        GameObject.FindGameObjectWithTag("Player").SendMessage("setPauseState", paused);
-        GameObject.FindGameObjectWithTag("Goal").SendMessage("setPauseState", paused);
+        GameObject.FindGameObjectWithTag("Player").SendMessage("set_pause_state", paused);
+        GameObject.FindGameObjectWithTag("Goal").SendMessage("set_pause_state", paused);
     }
 
-    public void setSettings()
+    public void set_settings()
     {
 
     }
 
-    public void quitGame()
+    public void quit_game()
     {
         Application.Quit();
     }
 
-    private void setPauseState(bool state)
+    private void set_pause_state(bool state)
     {
         paused = state;
         menuPanel.SetActive(paused);
-        GameObject.FindGameObjectWithTag("Player").SendMessage("setPauseState", paused);
+        GameObject.FindGameObjectWithTag("Player").SendMessage("set_pause_state", paused);
         GameObject Goal = GameObject.FindGameObjectWithTag("Goal");
-        if(Goal != null) Goal.SendMessage("setPauseState", paused);
+        if(Goal != null) Goal.SendMessage("set_pause_state", paused);
     }
 
-    private void winScreen(int score)
+    private void win_screen(int score)
     {
-        setPauseState(true);
+        set_pause_state(true);
         winPanel.SetActive(true);
         scoreText.text = score.ToString();
         ContinueGameButton.interactable = false;
-        SetCursorState(CursorLockMode.None);
+        set_cursor_state(CursorLockMode.None);
     }
 
-    private void loseScreen()
+    private void lose_screen()
     {
-        setPauseState(true);
+        set_pause_state(true);
         losePanel.SetActive(true);
         ContinueGameButton.interactable = false;
-        SetCursorState(CursorLockMode.None);
+        set_cursor_state(CursorLockMode.None);
     }
 
     /// <summary>
     /// Sets the Cursor State While inGame
     /// </summary>
     /// <param name="state"></param>
-    private void SetCursorState(CursorLockMode state)
+    private void set_cursor_state(CursorLockMode state)
     {
         Cursor.lockState = wantMode = state;
         Cursor.visible = (CursorLockMode.Locked != wantMode);
     }
 
-    private void addName_ToDictionary(ref float value, ref string name)
+    private void add_name_to_dictionary(ref float value, ref string name)
     {
         if (!player_scores[value].Contains(name))
             player_scores[value].Add(name);
     }
 
-    private void displayScore()
+    private void display_score()
     {
         StreamReader scoreReader = new StreamReader(scorePath, true); //open Score Text
         while(!scoreReader.EndOfStream)
@@ -166,7 +166,7 @@ public class MenuScript : MonoBehaviour
             string nameToCheck = line[0].Trim().ToLower();
             float scoreVal = float.Parse(line[1].Trim());
             if (player_scores.ContainsKey(scoreVal))
-                addName_ToDictionary(ref scoreVal, ref nameToCheck);
+                add_name_to_dictionary(ref scoreVal, ref nameToCheck);
 
         }
     }

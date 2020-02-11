@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
         this.Player_Cam = this.transform.GetChild(0).GetComponent<Camera>();
         angleX = 0; angleY = 0;
 
-        SetCursorState(CursorLockMode.Locked);          //Lock Mouse Movement
+        set_cursor_state(CursorLockMode.Locked);          //Lock Mouse Movement
 
         menuObject = GameObject.Find("Canvas").transform.GetChild(1).gameObject;
         overLay = GameObject.Find("Canvas").transform.GetChild(0).gameObject;
@@ -68,14 +68,14 @@ public class Player : MonoBehaviour
         //    SetCursorState(CursorLockMode.None);
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
-            SetCursorState(CursorLockMode.Locked);
+            set_cursor_state(CursorLockMode.Locked);
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SetCursorState(CursorLockMode.None);
+            set_cursor_state(CursorLockMode.None);
             menuObject.SetActive(true);
             overLay.SetActive(false);
-            GameObject.FindGameObjectWithTag("Menu").SendMessage("setPauseState", !paused);
+            GameObject.FindGameObjectWithTag("Menu").SendMessage("set_pause_state", !paused);
         }
 
         if(Input.GetKeyDown(KeyCode.Space) && !jumping)
@@ -112,12 +112,12 @@ public class Player : MonoBehaviour
             //score -= 10 * Time.deltaTime;
             if (score <= 0)
             {
-                GameObject.FindGameObjectWithTag("Menu").SendMessage("loseScreen");
+                GameObject.FindGameObjectWithTag("Menu").SendMessage("lose_screen");
             }
             scoreText.text = ((int)score).ToString();
 
             steps += Mathf.Abs(Player_Velocity.x) + Mathf.Abs(Player_Velocity.z);
-            leaveTrail();
+            leave_trail();
         }
     }
 
@@ -139,12 +139,12 @@ public class Player : MonoBehaviour
 
             if (this.transform.position.y + newPosOffset.y < groundHight) newPosOffset.y = 0;
             this.transform.position += newPosOffset;
-            updateCameraPosition();
+            update_camera_position();
 
         }
     }
 
-    private void updateCameraPosition()
+    private void update_camera_position()
     {
         MiniMap_Cam.transform.position = new Vector3(this.transform.position.x, MiniMap_Cam.transform.position.y,  this.transform.position.z);
     }
@@ -152,7 +152,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Leave a trail behind the player
     /// </summary>
-    private void leaveTrail()
+    private void leave_trail()
     {
         if(steps >= travelDistancePerTrailMarker && maxTrail > 0)
         {
@@ -169,22 +169,22 @@ public class Player : MonoBehaviour
     /// Sets the Cursor State While inGame
     /// </summary>
     /// <param name="state"></param>
-    private void SetCursorState(CursorLockMode state)
+    private void set_cursor_state(CursorLockMode state)
     {
         Cursor.lockState = wantMode = state;
         Cursor.visible = (CursorLockMode.Locked != wantMode);
     }
 
-    private void setPauseState(bool state)
+    private void set_pause_state(bool state)
     {
         paused = state;
         //overLay.SetActive(paused);
         if (!overLay.activeSelf) overLay.SetActive(true);
         if(!paused)
-            SetCursorState(CursorLockMode.Locked);
+            set_cursor_state(CursorLockMode.Locked);
     }
 
-    private void updateScore(float val)
+    private void update_score(float val)
     {
         score += val;
     }
@@ -198,7 +198,7 @@ public class Player : MonoBehaviour
         }
         if(other.tag == "Spawner" && gotGoal)
         {
-            GameObject.FindGameObjectWithTag("Menu").SendMessage("winScreen", (int)score);
+            GameObject.FindGameObjectWithTag("Menu").SendMessage("win_screen", (int)score);
         }
         if(other.tag == "Roof")
         {
