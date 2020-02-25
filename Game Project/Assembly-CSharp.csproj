@@ -63,25 +63,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\MapGeneration\Scripts\Effects\BloomEffect.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MapGeneration.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MenuScripts\MenuScript.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MeshGeneration\ControlNode.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MeshGeneration\MeshGenerator.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MeshGeneration\Node.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MeshGeneration\Square.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\MeshGeneration\SquareGrid.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\ObjectScripts\GoalScript.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\ObjectScripts\SpawnerScript.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\Player\Player.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\Player\Player2D.cs" />
-    <Compile Include="Assets\MapGeneration\Scripts\RoomGeneration\RoomsGeneration.cs" />
-    <Compile Include="Assets\Sound\EndlessCaveAmbience\scripts\RandomMusic.cs" />
+    <Compile Include="Assets\Resources\Sound\EndlessCaveAmbience\scripts\RandomMusic.cs" />
+    <Compile Include="Assets\Scripts\Effects\BloomEffect.cs" />
+    <Compile Include="Assets\Scripts\MapGeneration.cs" />
+    <Compile Include="Assets\Scripts\MenuScripts\MenuScript.cs" />
+    <Compile Include="Assets\Scripts\MeshGeneration\ControlNode.cs" />
+    <Compile Include="Assets\Scripts\MeshGeneration\MeshGenerator.cs" />
+    <Compile Include="Assets\Scripts\MeshGeneration\Node.cs" />
+    <Compile Include="Assets\Scripts\MeshGeneration\Square.cs" />
+    <Compile Include="Assets\Scripts\MeshGeneration\SquareGrid.cs" />
+    <Compile Include="Assets\Scripts\ObjectScripts\GoalScript.cs" />
+    <Compile Include="Assets\Scripts\ObjectScripts\SpawnerScript.cs" />
+    <Compile Include="Assets\Scripts\Player\Player.cs" />
+    <Compile Include="Assets\Scripts\Player\Player2D.cs" />
+    <Compile Include="Assets\Scripts\RoomGeneration\RoomsGeneration.cs" />
     <None Include="Assets\Resources\scoreBoard.txt" />
-    <None Include="Assets\Sound\Warped Fantasy\Source.txt" />
+    <None Include="Assets\Shaders\test\Unlit\testUnlitShader.shader" />
+    <None Include="Assets\Resources\Sound\Warped Fantasy\Source.txt" />
     <None Include="Assets\Resources\worldSettings.txt" />
-    <None Include="Assets\Sound\WAV\Source.txt" />
-    <None Include="Assets\MapGeneration\Materials\cave_textures\rock_cave\Source.txt" />
+    <None Include="Assets\Resources\Sound\WAV\Source.txt" />
+    <None Include="Assets\Resources\Materials\cave_textures\rock_cave\Source.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/SchoolAndProjects/Programs/ETGG 4801 Design Lab/Game Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
