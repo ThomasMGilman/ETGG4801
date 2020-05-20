@@ -1,5 +1,5 @@
-worldWidth 2
-worldHeight 2
+worldWidth 4
+worldHeight 4
 
 roomWidth 50
 roomHeight 50
@@ -8,7 +8,7 @@ hallWidth 2
 roomConnectionWidth 4
 
 squareSize 1
-borderSize 6
+borderSize 1
 
 smoothTimes 5
 
@@ -18,7 +18,7 @@ roomThresholdSize 15
 seed Random
 useRandSeed true
 
-randFillPercent 50
+randFillPercent 65
 useRandFillPercent false
 
 endGoalThreshold 0

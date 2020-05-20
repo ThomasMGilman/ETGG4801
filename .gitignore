@@ -1,0 +1,6 @@
+*.zip
+*.vs
+*.mp3
+*.mp4
+Builds/
+/PlayerDataCache/*
